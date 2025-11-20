@@ -322,3 +322,4 @@ This project was built to:
 2. Learn Docker containerization and deployment
 3. Build a practical tool for tracking job applications
 4. Implement modern frontend patterns (React Query, dnd-kit)
+- do not run sub task in background terminal unless I specify it in the command
