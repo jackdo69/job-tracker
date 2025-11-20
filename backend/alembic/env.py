@@ -5,9 +5,13 @@ from sqlalchemy import pool
 from alembic import context
 import os
 import sys
+from dotenv import load_dotenv
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# Load .env file
+load_dotenv()
 
 from app.core.database import Base
 from app.models.job_application import JobApplication  # noqa
@@ -26,7 +30,9 @@ target_metadata = Base.metadata
 # Override sqlalchemy.url from environment variable if present
 database_url = os.getenv("DATABASE_URL")
 if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+    # Escape % signs for ConfigParser (% -> %%)
+    database_url_escaped = database_url.replace('%', '%%')
+    config.set_main_option("sqlalchemy.url", database_url_escaped)
 
 
 def run_migrations_offline() -> None:
