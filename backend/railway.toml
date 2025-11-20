@@ -1,11 +1,11 @@
 [build]
-builder = "nixpacks"
-buildCommand = "cd backend && pip install -r requirements.txt"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
-restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
+restartPolicyType = "on_failure"
+startCommand = "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 
 [env]
 # Railway will provide PORT automatically
