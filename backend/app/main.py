@@ -4,11 +4,7 @@ Main FastAPI application.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.database import engine, Base
 from app.api.endpoints import applications, analytics, auth
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(
@@ -59,7 +55,13 @@ def root():
 @app.get(f"{settings.API_V1_STR}/health")
 def health_check():
     """Health check endpoint."""
-    return {"status": "healthy"}
+    return {"status": "healthy", "service": "job-tracker-api"}
+
+
+@app.get("/health")
+def health_check_root():
+    """Root health check endpoint (for Railway)."""
+    return {"status": "healthy", "service": "job-tracker-api"}
 
 
 if __name__ == "__main__":
