@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     # Server
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 8000  # Railway provides PORT env var, which will override this default
 
     class Config:
         case_sensitive = True
