@@ -8,9 +8,11 @@ from app.core.config import settings
 from app.api.endpoints import applications, analytics, auth
 
 # Configure logging
+import sys
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout  # Use stdout instead of stderr so Railway shows correct log levels
 )
 logger = logging.getLogger(__name__)
 
