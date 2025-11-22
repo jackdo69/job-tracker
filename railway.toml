@@ -8,7 +8,7 @@ dockerContext = "backend"
 restartPolicyMaxRetries = 10
 restartPolicyType = "on_failure"
 healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 
 [env]
 # Railway will provide PORT automatically

@@ -2,10 +2,12 @@
 Main FastAPI application.
 """
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.api.endpoints import applications, analytics, auth
+from app.api.deps import get_db
 
 # Configure logging
 import sys
@@ -75,12 +77,28 @@ def health_check():
 
 
 @app.get("/health")
-def health_check_root():
+def health_check_root(db: Session = Depends(get_db)):
     """Root health check endpoint (for Railway)."""
-    # Simple health check that doesn't depend on database
-    # This ensures Railway can verify the server is running
-    logger.debug("Root health check accessed")
-    return {"status": "healthy", "service": "job-tracker-api", "version": settings.VERSION}
+    # Health check that verifies both server and database connectivity
+    logger.info("Health check requested")
+
+    try:
+        # Test database connection with a simple query
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        logger.info("Health check passed - database connected")
+        return {
+            "status": "healthy",
+            "service": "job-tracker-api",
+            "version": settings.VERSION,
+            "database": "connected"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed - database error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database connection failed: {str(e)}"
+        )
 
 
 @app.on_event("startup")
@@ -92,6 +110,15 @@ async def startup_event():
     logger.info(f"Version: {settings.VERSION}")
     logger.info(f"Docs: {settings.API_V1_STR}/docs")
     logger.info("="*50)
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Log shutdown event."""
+    logger.warning("="*50)
+    logger.warning("Application is shutting down!")
+    logger.warning("If this happens unexpectedly, check Railway logs for crash details")
+    logger.warning("="*50)
 
 
 if __name__ == "__main__":
