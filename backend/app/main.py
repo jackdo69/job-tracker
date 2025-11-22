@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.api.endpoints import applications, analytics, auth
 from app.api.deps import get_db
+import os
 
 # Configure logging
 import sys
@@ -77,16 +78,29 @@ def health_check():
 
 
 @app.get("/health")
-def health_check_root(db: Session = Depends(get_db)):
+def health_check_root():
     """Root health check endpoint (for Railway)."""
-    # Health check that verifies both server and database connectivity
+    # Simple health check that doesn't depend on database
+    # This prevents Railway from killing the container if DB is slow
     logger.info("Health check requested")
+    return {
+        "status": "healthy",
+        "service": "job-tracker-api",
+        "version": settings.VERSION
+    }
+
+
+@app.get("/health/db")
+def health_check_database(db: Session = Depends(get_db)):
+    """Database health check endpoint."""
+    # Detailed health check that verifies database connectivity
+    logger.info("Database health check requested")
 
     try:
         # Test database connection with a simple query
         from sqlalchemy import text
         db.execute(text("SELECT 1"))
-        logger.info("Health check passed - database connected")
+        logger.info("Database health check passed")
         return {
             "status": "healthy",
             "service": "job-tracker-api",
@@ -94,7 +108,7 @@ def health_check_root(db: Session = Depends(get_db)):
             "database": "connected"
         }
     except Exception as e:
-        logger.error(f"Health check failed - database error: {e}")
+        logger.error(f"Database health check failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database connection failed: {str(e)}"
@@ -109,6 +123,8 @@ async def startup_event():
     logger.info(f"Service: {settings.PROJECT_NAME}")
     logger.info(f"Version: {settings.VERSION}")
     logger.info(f"Docs: {settings.API_V1_STR}/docs")
+    logger.info(f"PORT: {os.getenv('PORT', '8000')}")
+    logger.info(f"DATABASE_URL: {'SET' if os.getenv('DATABASE_URL') else 'NOT SET'}")
     logger.info("="*50)
 
 
