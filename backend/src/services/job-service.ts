@@ -9,6 +9,7 @@ import type {
   JobApplicationUpdate,
   JobApplicationMove,
 } from '../schemas/job-application.js';
+import { logger } from '../lib/logger.js';
 
 /**
  * Get all job applications for a specific user
@@ -44,35 +45,57 @@ export async function createApplication(
   applicationData: JobApplicationCreate,
   userId: string
 ): Promise<JobApplication> {
-  // Get max order_index for the status and user
-  const maxOrderResult = await db
-    .select({ maxOrder: jobApplications.orderIndex })
-    .from(jobApplications)
-    .where(and(eq(jobApplications.status, applicationData.status), eq(jobApplications.userId, userId)))
-    .orderBy(desc(jobApplications.orderIndex))
-    .limit(1);
+  try {
+    // Get max order_index for the status and user
+    const maxOrderResult = await db
+      .select({ maxOrder: jobApplications.orderIndex })
+      .from(jobApplications)
+      .where(and(eq(jobApplications.status, applicationData.status), eq(jobApplications.userId, userId)))
+      .orderBy(desc(jobApplications.orderIndex))
+      .limit(1);
 
-  const orderIndex = maxOrderResult.length > 0 ? (maxOrderResult[0].maxOrder ?? -1) + 1 : 0;
+    const orderIndex = maxOrderResult.length > 0 ? (maxOrderResult[0].maxOrder ?? -1) + 1 : 0;
 
-  // Transform snake_case to camelCase for Drizzle ORM
-  const [newApplication] = await db
-    .insert(jobApplications)
-    .values({
+    // Transform snake_case to camelCase for Drizzle ORM
+    // Ensure date is a proper Date object
+    const applicationDate = applicationData.application_date instanceof Date
+      ? applicationData.application_date
+      : new Date(applicationData.application_date);
+
+    const insertData = {
       companyName: applicationData.company_name,
       positionTitle: applicationData.position_title,
       status: applicationData.status,
-      interviewStage: applicationData.interview_stage,
-      rejectionStage: applicationData.rejection_stage,
-      applicationDate: applicationData.application_date,
-      salaryRange: applicationData.salary_range,
-      location: applicationData.location,
-      notes: applicationData.notes,
+      interviewStage: applicationData.interview_stage ?? null,
+      rejectionStage: applicationData.rejection_stage ?? null,
+      applicationDate,
+      salaryRange: applicationData.salary_range ?? null,
+      location: applicationData.location ?? null,
+      notes: applicationData.notes ?? null,
       userId,
       orderIndex,
-    })
-    .returning();
+    };
 
-  return newApplication;
+    logger.debug({ insertData }, 'Attempting to insert job application');
+
+    const [newApplication] = await db
+      .insert(jobApplications)
+      .values(insertData)
+      .returning();
+
+    return newApplication;
+  } catch (error) {
+    logger.error({
+      error: error instanceof Error ? {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      } : String(error),
+      userId,
+      applicationData
+    }, 'Database error in createApplication');
+    throw error;
+  }
 }
 
 /**

@@ -22,8 +22,8 @@ export const users = pgTable('users', {
   hashedPassword: varchar('hashed_password', { length: 255 }).notNull(),
   fullName: varchar('full_name', { length: 255 }),
   isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
 /**
@@ -39,13 +39,13 @@ export const jobApplications = pgTable('job_applications', {
   status: applicationStatusEnum('status').notNull().default('Applied'),
   interviewStage: varchar('interview_stage', { length: 100 }),
   rejectionStage: varchar('rejection_stage', { length: 100 }),
-  applicationDate: timestamp('application_date').notNull(),
+  applicationDate: timestamp('application_date', { mode: 'date' }).notNull(),
   salaryRange: varchar('salary_range', { length: 100 }),
   location: varchar('location', { length: 255 }),
   notes: text('notes'),
   orderIndex: integer('order_index').notNull().default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
 /**
