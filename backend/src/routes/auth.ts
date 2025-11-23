@@ -5,8 +5,9 @@ import { Hono, Context } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { HTTPException } from 'hono/http-exception';
 import { authMiddleware, type AuthContext } from '../middleware/auth.js';
-import { registerUser, authenticateUser } from '../services/auth-service.js';
+import { registerUser, authenticateUser, getGoogleAuthUrl, handleGoogleCallback } from '../services/auth-service.js';
 import { userCreateSchema, loginRequestSchema } from '../schemas/user.js';
+import { config } from '../lib/config.js';
 
 const auth = new Hono();
 
@@ -64,9 +65,47 @@ auth.get('/me', authMiddleware, async (c: Context<AuthContext>) => {
 });
 
 /**
- * TODO: Implement Google OAuth routes
+ * Get Google OAuth authorization URL
  * GET /auth/google/login
+ */
+auth.get('/google/login', (c) => {
+  if (!config.googleClientId || !config.googleRedirectUri) {
+    throw new HTTPException(500, { message: 'Google OAuth not configured' });
+  }
+
+  const authUrl = getGoogleAuthUrl(config.googleClientId, config.googleRedirectUri);
+  return c.json({ auth_url: authUrl });
+});
+
+/**
+ * Handle Google OAuth callback
  * GET /auth/google/callback
  */
+auth.get('/google/callback', async (c) => {
+  const code = c.req.query('code');
+
+  if (!code) {
+    throw new HTTPException(400, { message: 'Authorization code is required' });
+  }
+
+  if (!config.googleClientId || !config.googleClientSecret || !config.googleRedirectUri) {
+    throw new HTTPException(500, { message: 'Google OAuth not configured' });
+  }
+
+  try {
+    const response = await handleGoogleCallback(
+      code,
+      config.googleClientId,
+      config.googleClientSecret,
+      config.googleRedirectUri
+    );
+    return c.json(response);
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    throw new HTTPException(500, { message: 'Internal server error' });
+  }
+});
 
 export default auth;

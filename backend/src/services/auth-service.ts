@@ -127,3 +127,150 @@ export async function getCurrentUserFromToken(userId: string): Promise<User> {
 
   return user;
 }
+
+/**
+ * Generate Google OAuth authorization URL
+ */
+export function getGoogleAuthUrl(clientId: string, redirectUri: string): string {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+  const options = {
+    redirect_uri: redirectUri,
+    client_id: clientId,
+    access_type: 'offline',
+    response_type: 'code',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ].join(' '),
+  };
+
+  const qs = new URLSearchParams(options);
+  return `${rootUrl}?${qs.toString()}`;
+}
+
+/**
+ * Exchange Google OAuth code for tokens
+ */
+async function getGoogleTokens(
+  code: string,
+  clientId: string,
+  clientSecret: string,
+  redirectUri: string
+): Promise<{ access_token: string; id_token: string }> {
+  const url = 'https://oauth2.googleapis.com/token';
+  const values = {
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    grant_type: 'authorization_code',
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams(values),
+  });
+
+  if (!response.ok) {
+    throw new HTTPException(400, { message: 'Failed to exchange authorization code' });
+  }
+
+  return response.json() as Promise<{ access_token: string; id_token: string }>;
+}
+
+/**
+ * Get Google user info from access token
+ */
+async function getGoogleUser(access_token: string, id_token: string): Promise<{
+  id: string;
+  email: string;
+  verified_email: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+}> {
+  const response = await fetch(
+    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+    {
+      headers: {
+        Authorization: `Bearer ${id_token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new HTTPException(400, { message: 'Failed to fetch user info from Google' });
+  }
+
+  return response.json() as Promise<{
+    id: string;
+    email: string;
+    verified_email: boolean;
+    name: string;
+    given_name: string;
+    family_name: string;
+    picture: string;
+  }>;
+}
+
+/**
+ * Handle Google OAuth callback and login/register user
+ */
+export async function handleGoogleCallback(
+  code: string,
+  clientId: string,
+  clientSecret: string,
+  redirectUri: string
+): Promise<LoginResponse> {
+  // Exchange code for tokens
+  const { access_token, id_token } = await getGoogleTokens(code, clientId, clientSecret, redirectUri);
+
+  // Get user info from Google
+  const googleUser = await getGoogleUser(access_token, id_token);
+
+  if (!googleUser.verified_email) {
+    throw new HTTPException(403, { message: 'Google email not verified' });
+  }
+
+  // Check if user exists
+  let user = await getUserByEmail(googleUser.email);
+
+  if (!user) {
+    // Create new user (OAuth users have a special marker instead of password)
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        email: googleUser.email,
+        hashedPassword: 'OAUTH_USER', // Special marker for OAuth-only users
+        fullName: googleUser.name,
+        isActive: true,
+      })
+      .returning();
+
+    user = newUser;
+  }
+
+  // Create access token
+  const accessToken = createAccessToken({
+    sub: user.id,
+    email: user.email,
+  });
+
+  return {
+    access_token: accessToken,
+    token_type: 'bearer',
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    },
+  };
+}
