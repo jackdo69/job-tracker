@@ -8,6 +8,7 @@ import { authMiddleware, type AuthContext } from '../middleware/auth.js';
 import { registerUser, authenticateUser, getGoogleAuthUrl, handleGoogleCallback } from '../services/auth-service.js';
 import { userCreateSchema, loginRequestSchema } from '../schemas/user.js';
 import { config } from '../lib/config.js';
+import { logger } from '../lib/logger.js';
 
 const auth = new Hono();
 
@@ -88,7 +89,20 @@ auth.get('/google/callback', async (c) => {
     throw new HTTPException(400, { message: 'Authorization code is required' });
   }
 
+  // Debug logging for OAuth config
+  logger.debug({
+    hasClientId: !!config.googleClientId,
+    hasClientSecret: !!config.googleClientSecret,
+    hasRedirectUri: !!config.googleRedirectUri,
+    redirectUri: config.googleRedirectUri
+  }, 'Google OAuth callback configuration check');
+
   if (!config.googleClientId || !config.googleClientSecret || !config.googleRedirectUri) {
+    logger.error({
+      hasClientId: !!config.googleClientId,
+      hasClientSecret: !!config.googleClientSecret,
+      hasRedirectUri: !!config.googleRedirectUri
+    }, 'Google OAuth configuration incomplete');
     throw new HTTPException(500, { message: 'Google OAuth not configured' });
   }
 

@@ -11,7 +11,7 @@ import type {
 import type { AnalyticsData } from '../types/analytics';
 import type { User, LoginRequest, RegisterRequest, LoginResponse } from '../types/user';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,

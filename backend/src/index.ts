@@ -88,6 +88,11 @@ logger.info({
   databaseConfigured: !!config.databaseUrl,
   corsOrigins: config.corsOrigins
 }, 'Database & CORS Configuration');
+logger.info({
+  googleClientIdConfigured: !!config.googleClientId,
+  googleClientSecretConfigured: !!config.googleClientSecret,
+  googleRedirectUri: config.googleRedirectUri
+}, 'Google OAuth Configuration');
 logger.info('='.repeat(60));
 
 serve(
