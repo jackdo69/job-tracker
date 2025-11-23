@@ -4,10 +4,12 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
 import { HTTPException } from 'hono/http-exception';
 import { config } from './lib/config.js';
+import { logger } from './lib/logger.js';
+import { requestLogger } from './middleware/logger.js';
 import { sql } from './db/db.js';
+import healthRoutes from './routes/health.js';
 import authRoutes from './routes/auth.js';
 import applicationsRoutes from './routes/applications.js';
 import analyticsRoutes from './routes/analytics.js';
@@ -16,7 +18,7 @@ import analyticsRoutes from './routes/analytics.js';
 const app = new Hono();
 
 // Middleware
-app.use('*', logger());
+app.use('*', requestLogger);
 app.use(
   '*',
   cors({
@@ -27,80 +29,31 @@ app.use(
   })
 );
 
-// Routes
+// Public routes (no authentication required)
+app.route('/', healthRoutes);
+
+// Protected routes (authentication required)
 app.route(`${config.apiPrefix}/auth`, authRoutes);
 app.route(`${config.apiPrefix}/applications`, applicationsRoutes);
 app.route(`${config.apiPrefix}/analytics`, analyticsRoutes);
-
-/**
- * Root endpoint
- */
-app.get('/', (c) => {
-  console.log('Root endpoint accessed');
-  return c.json({
-    name: config.projectName,
-    version: config.version,
-    docs: `${config.apiPrefix}/docs`,
-  });
-});
-
-/**
- * Health check endpoint (simple)
- */
-app.get('/health', (c) => {
-  console.log('Health check requested');
-  return c.json({
-    status: 'healthy',
-    service: 'job-tracker-api',
-    version: config.version,
-  });
-});
-
-/**
- * Database health check endpoint
- */
-app.get('/health/db', async (c) => {
-  console.log('Database health check requested');
-
-  try {
-    // Test database connection with a simple query
-    await sql`SELECT 1`;
-    console.log('Database health check passed');
-
-    return c.json({
-      status: 'healthy',
-      service: 'job-tracker-api',
-      version: config.version,
-      database: 'connected',
-    });
-  } catch (error) {
-    console.error('Database health check failed:', error);
-    throw new HTTPException(503, {
-      message: `Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    });
-  }
-});
-
-/**
- * API v1 health check endpoint
- */
-app.get(`${config.apiPrefix}/health`, (c) => {
-  console.log('API health check accessed');
-  return c.json({
-    status: 'healthy',
-    service: 'job-tracker-api',
-  });
-});
 
 /**
  * Error handler
  */
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
+    // Log HTTP exceptions at appropriate level
+    const status = err.status;
+    if (status >= 500) {
+      logger.error({ err, status }, `HTTP Error: ${err.message}`);
+    } else if (status >= 400) {
+      logger.warn({ status, message: err.message }, `HTTP ${status}: ${err.message}`);
+    }
     return err.getResponse();
   }
 
-  console.error('Unhandled error:', err);
+  // Log unhandled errors
+  logger.error({ err }, `Unhandled error: ${err.message}`);
   return c.json(
     {
       error: 'Internal Server Error',
@@ -125,13 +78,17 @@ app.notFound((c) => {
 
 // Start server
 const port = config.port;
-console.log('='.repeat(50));
-console.log('Starting server...');
-console.log(`Service: ${config.projectName}`);
-console.log(`Version: ${config.version}`);
-console.log(`PORT: ${port}`);
-console.log(`DATABASE_URL: ${config.databaseUrl ? 'SET' : 'NOT SET'}`);
-console.log('='.repeat(50));
+
+logger.info('='.repeat(60));
+logger.info('🚀 Starting Job Tracker API...');
+logger.info('='.repeat(60));
+logger.info({ service: config.projectName, version: config.version }, 'Service Information');
+logger.info({ port, host: config.host }, 'Server Configuration');
+logger.info({
+  databaseConfigured: !!config.databaseUrl,
+  corsOrigins: config.corsOrigins
+}, 'Database & CORS Configuration');
+logger.info('='.repeat(60));
 
 serve(
   {
@@ -140,28 +97,52 @@ serve(
     hostname: config.host,
   },
   (info) => {
-    console.log('='.repeat(50));
-    console.log('Application startup complete!');
-    console.log(`Service: ${config.projectName}`);
-    console.log(`Version: ${config.version}`);
-    console.log(`Server running at http://${info.address}:${info.port}`);
-    console.log('='.repeat(50));
+    logger.info('='.repeat(60));
+    logger.info('✅ Application startup complete!');
+    logger.info({
+      service: config.projectName,
+      version: config.version,
+      url: `http://${info.address}:${info.port}`,
+      apiPrefix: config.apiPrefix,
+      healthCheck: `http://${info.address}:${info.port}/health`,
+      dbHealthCheck: `http://${info.address}:${info.port}/health/db`,
+    }, 'Server is running');
+    logger.info('='.repeat(60));
+    logger.info('📝 Ready to accept requests');
   }
 );
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('='.repeat(50));
-  console.log('SIGTERM signal received: closing HTTP server');
-  console.log('='.repeat(50));
-  await sql.end();
-  process.exit(0);
+  logger.warn('='.repeat(60));
+  logger.warn('⚠️  SIGTERM signal received: initiating graceful shutdown');
+  logger.warn('='.repeat(60));
+
+  try {
+    logger.info('Closing database connections...');
+    await sql.end();
+    logger.info('✅ Database connections closed successfully');
+    logger.info('👋 Shutdown complete');
+    process.exit(0);
+  } catch (error) {
+    logger.error({ err: error }, '❌ Error during shutdown');
+    process.exit(1);
+  }
 });
 
 process.on('SIGINT', async () => {
-  console.log('='.repeat(50));
-  console.log('SIGINT signal received: closing HTTP server');
-  console.log('='.repeat(50));
-  await sql.end();
-  process.exit(0);
+  logger.warn('='.repeat(60));
+  logger.warn('⚠️  SIGINT signal received: initiating graceful shutdown');
+  logger.warn('='.repeat(60));
+
+  try {
+    logger.info('Closing database connections...');
+    await sql.end();
+    logger.info('✅ Database connections closed successfully');
+    logger.info('👋 Shutdown complete');
+    process.exit(0);
+  } catch (error) {
+    logger.error({ err: error }, '❌ Error during shutdown');
+    process.exit(1);
+  }
 });
