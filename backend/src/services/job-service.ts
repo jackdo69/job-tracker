@@ -54,10 +54,19 @@ export async function createApplication(
 
   const orderIndex = maxOrderResult.length > 0 ? (maxOrderResult[0].maxOrder ?? -1) + 1 : 0;
 
+  // Transform snake_case to camelCase for Drizzle ORM
   const [newApplication] = await db
     .insert(jobApplications)
     .values({
-      ...applicationData,
+      companyName: applicationData.company_name,
+      positionTitle: applicationData.position_title,
+      status: applicationData.status,
+      interviewStage: applicationData.interview_stage,
+      rejectionStage: applicationData.rejection_stage,
+      applicationDate: applicationData.application_date,
+      salaryRange: applicationData.salary_range,
+      location: applicationData.location,
+      notes: applicationData.notes,
       userId,
       orderIndex,
     })
@@ -79,9 +88,22 @@ export async function updateApplication(
     return undefined;
   }
 
+  // Transform snake_case to camelCase for Drizzle ORM
+  const updateData: Partial<JobApplication> = {};
+  if (applicationData.company_name !== undefined) updateData.companyName = applicationData.company_name;
+  if (applicationData.position_title !== undefined) updateData.positionTitle = applicationData.position_title;
+  if (applicationData.status !== undefined) updateData.status = applicationData.status;
+  if (applicationData.interview_stage !== undefined) updateData.interviewStage = applicationData.interview_stage;
+  if (applicationData.rejection_stage !== undefined) updateData.rejectionStage = applicationData.rejection_stage;
+  if (applicationData.application_date !== undefined) updateData.applicationDate = applicationData.application_date;
+  if (applicationData.salary_range !== undefined) updateData.salaryRange = applicationData.salary_range;
+  if (applicationData.location !== undefined) updateData.location = applicationData.location;
+  if (applicationData.notes !== undefined) updateData.notes = applicationData.notes;
+  if (applicationData.order_index !== undefined) updateData.orderIndex = applicationData.order_index;
+
   const [updated] = await db
     .update(jobApplications)
-    .set(applicationData)
+    .set(updateData)
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .returning();
 
@@ -123,18 +145,18 @@ export async function moveApplication(
   const oldStatus = application.status;
   const newStatus = moveData.status;
 
-  // Prepare update data
+  // Prepare update data (transform snake_case to camelCase)
   const updateData: Partial<JobApplication> = {
     status: newStatus,
-    orderIndex: moveData.orderIndex,
+    orderIndex: moveData.order_index,
   };
 
   // Update stage fields based on status
   if (newStatus === 'Interviewing') {
-    updateData.interviewStage = moveData.interviewStage ?? null;
+    updateData.interviewStage = moveData.interview_stage ?? null;
     updateData.rejectionStage = null;
   } else if (newStatus === 'Rejected') {
-    updateData.rejectionStage = moveData.rejectionStage ?? null;
+    updateData.rejectionStage = moveData.rejection_stage ?? null;
     updateData.interviewStage = null;
   } else {
     updateData.interviewStage = null;
@@ -151,7 +173,7 @@ export async function moveApplication(
         and(
           eq(jobApplications.userId, userId),
           eq(jobApplications.status, newStatus),
-          sql`${jobApplications.orderIndex} >= ${moveData.orderIndex}`,
+          sql`${jobApplications.orderIndex} >= ${moveData.order_index}`,
           sql`${jobApplications.id} != ${applicationId}`
         )
       );
