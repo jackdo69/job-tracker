@@ -7,6 +7,7 @@ import { users, type User } from '../db/schema.js';
 import type { UserCreate, LoginRequest, LoginResponse, UserResponse } from '../schemas/user.js';
 import { verifyPassword, getPasswordHash, createAccessToken } from '../lib/auth.js';
 import { HTTPException } from 'hono/http-exception';
+import crypto from 'crypto';
 
 /**
  * Get a user by email address
@@ -28,32 +29,41 @@ export async function getUserById(userId: string): Promise<User | undefined> {
  * Register a new user
  */
 export async function registerUser(userData: UserCreate): Promise<UserResponse> {
-  // Check if user already exists
-  const existingUser = await getUserByEmail(userData.email);
-  if (existingUser) {
-    throw new HTTPException(400, { message: 'Email already registered' });
+  try {
+    // Check if user already exists
+    const existingUser = await getUserByEmail(userData.email);
+    if (existingUser) {
+      throw new HTTPException(400, { message: 'Email already registered' });
+    }
+
+    // Create new user with explicit UUID
+    const hashedPassword = await getPasswordHash(userData.password);
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        id: crypto.randomUUID(),
+        email: userData.email,
+        hashedPassword,
+        fullName: userData.fullName,
+        isActive: true,
+      })
+      .returning();
+
+    return {
+      id: newUser.id,
+      email: newUser.email,
+      fullName: newUser.fullName,
+      isActive: newUser.isActive,
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Error registering user:', error);
+    throw new HTTPException(500, { message: 'Failed to register user' });
   }
-
-  // Create new user
-  const hashedPassword = await getPasswordHash(userData.password);
-  const [newUser] = await db
-    .insert(users)
-    .values({
-      email: userData.email,
-      hashedPassword,
-      fullName: userData.fullName,
-      isActive: true,
-    })
-    .returning();
-
-  return {
-    id: newUser.id,
-    email: newUser.email,
-    fullName: newUser.fullName,
-    isActive: newUser.isActive,
-    createdAt: newUser.createdAt,
-    updatedAt: newUser.updatedAt,
-  };
 }
 
 /**
@@ -158,34 +168,58 @@ async function getGoogleTokens(
   clientSecret: string,
   redirectUri: string
 ): Promise<{ access_token: string; id_token: string }> {
-  const url = 'https://oauth2.googleapis.com/token';
-  const values = {
-    code,
-    client_id: clientId,
-    client_secret: clientSecret,
-    redirect_uri: redirectUri,
-    grant_type: 'authorization_code',
-  };
+  try {
+    const url = 'https://oauth2.googleapis.com/token';
+    const values = {
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code',
+    };
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(values),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error('Google token exchange failed:', {
-      status: response.status,
-      statusText: response.statusText,
-      body: errorBody
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(values),
     });
-    throw new HTTPException(400, { message: `Failed to exchange authorization code: ${errorBody}` });
-  }
 
-  return response.json() as Promise<{ access_token: string; id_token: string }>;
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Google token exchange failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+        redirectUri
+      });
+
+      // Parse the error to provide a better message
+      let errorMessage = 'Failed to exchange authorization code';
+      try {
+        const errorJson = JSON.parse(errorBody);
+        if (errorJson.error_description) {
+          errorMessage = errorJson.error_description;
+        } else if (errorJson.error) {
+          errorMessage = errorJson.error;
+        }
+      } catch {
+        // If parsing fails, use the raw error body
+        errorMessage = errorBody || errorMessage;
+      }
+
+      throw new HTTPException(400, { message: errorMessage });
+    }
+
+    return response.json() as Promise<{ access_token: string; id_token: string }>;
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Error exchanging Google authorization code:', error);
+    throw new HTTPException(500, { message: 'Failed to complete Google authentication' });
+  }
 }
 
 /**
@@ -200,28 +234,42 @@ async function getGoogleUser(access_token: string, id_token: string): Promise<{
   family_name: string;
   picture: string;
 }> {
-  const response = await fetch(
-    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-    {
-      headers: {
-        Authorization: `Bearer ${id_token}`,
-      },
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+      {
+        headers: {
+          Authorization: `Bearer ${id_token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Failed to fetch Google user info:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      throw new HTTPException(400, { message: 'Failed to fetch user info from Google' });
     }
-  );
 
-  if (!response.ok) {
-    throw new HTTPException(400, { message: 'Failed to fetch user info from Google' });
+    return response.json() as Promise<{
+      id: string;
+      email: string;
+      verified_email: boolean;
+      name: string;
+      given_name: string;
+      family_name: string;
+      picture: string;
+    }>;
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Error fetching Google user info:', error);
+    throw new HTTPException(500, { message: 'Failed to retrieve user information' });
   }
-
-  return response.json() as Promise<{
-    id: string;
-    email: string;
-    verified_email: boolean;
-    name: string;
-    given_name: string;
-    family_name: string;
-    picture: string;
-  }>;
 }
 
 /**
@@ -233,50 +281,64 @@ export async function handleGoogleCallback(
   clientSecret: string,
   redirectUri: string
 ): Promise<LoginResponse> {
-  // Exchange code for tokens
-  const { access_token, id_token } = await getGoogleTokens(code, clientId, clientSecret, redirectUri);
+  try {
+    // Exchange code for tokens
+    const { access_token, id_token } = await getGoogleTokens(code, clientId, clientSecret, redirectUri);
 
-  // Get user info from Google
-  const googleUser = await getGoogleUser(access_token, id_token);
+    // Get user info from Google
+    const googleUser = await getGoogleUser(access_token, id_token);
 
-  if (!googleUser.verified_email) {
-    throw new HTTPException(403, { message: 'Google email not verified' });
-  }
+    if (!googleUser.verified_email) {
+      throw new HTTPException(403, { message: 'Google email not verified' });
+    }
 
-  // Check if user exists
-  let user = await getUserByEmail(googleUser.email);
+    // Check if user exists
+    let user = await getUserByEmail(googleUser.email);
 
-  if (!user) {
-    // Create new user (OAuth users have a special marker instead of password)
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        email: googleUser.email,
-        hashedPassword: 'OAUTH_USER', // Special marker for OAuth-only users
-        fullName: googleUser.name,
-        isActive: true,
-      })
-      .returning();
+    if (!user) {
+      // Create new user (OAuth users have a special marker instead of password)
+      try {
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            id: crypto.randomUUID(),
+            email: googleUser.email,
+            hashedPassword: 'OAUTH_USER', // Special marker for OAuth-only users
+            fullName: googleUser.name,
+            isActive: true,
+          })
+          .returning();
 
-    user = newUser;
-  }
+        user = newUser;
+      } catch (dbError) {
+        console.error('Failed to create OAuth user:', dbError);
+        throw new HTTPException(500, { message: 'Failed to create user account' });
+      }
+    }
 
-  // Create access token
-  const accessToken = createAccessToken({
-    sub: user.id,
-    email: user.email,
-  });
-
-  return {
-    access_token: accessToken,
-    token_type: 'bearer',
-    user: {
-      id: user.id,
+    // Create access token
+    const accessToken = createAccessToken({
+      sub: user.id,
       email: user.email,
-      fullName: user.fullName,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    },
-  };
+    });
+
+    return {
+      access_token: accessToken,
+      token_type: 'bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Google OAuth callback error:', error);
+    throw new HTTPException(500, { message: 'Authentication failed' });
+  }
 }
