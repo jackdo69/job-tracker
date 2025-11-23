@@ -113,14 +113,20 @@ auth.get('/google/callback', async (c) => {
       config.googleClientSecret,
       config.googleRedirectUri
     );
-    return c.json(response);
+
+    // Redirect to frontend with token as query parameter
+    const redirectUrl = `${config.frontendUrl}/auth/google/callback?token=${response.access_token}`;
+    return c.redirect(redirectUrl);
   } catch (error) {
     if (error instanceof HTTPException) {
-      throw error;
+      // Redirect to frontend with error
+      const errorRedirectUrl = `${config.frontendUrl}/auth/google/callback?error=${encodeURIComponent(error.message)}`;
+      return c.redirect(errorRedirectUrl);
     }
     // Log the actual error for debugging
     logger.error({ err: error, code }, 'Google OAuth callback failed');
-    throw new HTTPException(500, { message: 'Internal server error' });
+    const errorRedirectUrl = `${config.frontendUrl}/auth/google/callback?error=Authentication failed`;
+    return c.redirect(errorRedirectUrl);
   }
 });
 

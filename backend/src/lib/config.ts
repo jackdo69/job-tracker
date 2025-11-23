@@ -30,6 +30,12 @@ export const config = {
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
   googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:8080/api/auth/google/callback',
 
+  // Frontend URL (for OAuth redirect after successful authentication)
+  // Derived from first CORS origin (assumes first origin is the primary frontend)
+  get frontendUrl(): string {
+    return this.corsOrigins[0] || 'http://localhost:3000';
+  },
+
   // Server
   host: process.env.HOST || '0.0.0.0',
   port: parseInt(process.env.PORT || '8080', 10),
