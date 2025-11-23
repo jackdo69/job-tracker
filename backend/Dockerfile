@@ -24,8 +24,8 @@ RUN npm run build
 # Remove devDependencies to reduce image size
 RUN npm prune --production
 
-# Expose port
-EXPOSE 8000
+# Expose port (Railway typically assigns PORT via environment variable)
+EXPOSE 8080
 
 # Run migrations and start server (use compiled JS for migrations)
 CMD ["sh", "-c", "npm run db:migrate:prod && npm start"]
