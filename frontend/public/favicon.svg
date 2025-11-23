@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Card shadow -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="url(#bgGrad)"/>
+
+  <!-- Kanban columns (simplified) -->
+  <rect x="7" y="18" width="14" height="30" rx="2.5" fill="white" opacity="0.25"/>
+  <rect x="25" y="18" width="14" height="30" rx="2.5" fill="white" opacity="0.25"/>
+  <rect x="43" y="18" width="14" height="30" rx="2.5" fill="white" opacity="0.25"/>
+
+  <!-- Task cards with shadows -->
+  <rect x="9" y="22" width="10" height="7" rx="2" fill="white" filter="url(#shadow)"/>
+  <rect x="9" y="32" width="10" height="7" rx="2" fill="white" filter="url(#shadow)" opacity="0.9"/>
+
+  <rect x="27" y="22" width="10" height="7" rx="2" fill="white" filter="url(#shadow)"/>
+
+  <rect x="45" y="22" width="10" height="7" rx="2" fill="white" filter="url(#shadow)" opacity="0.9"/>
+</svg>
