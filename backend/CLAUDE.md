@@ -154,7 +154,7 @@ GOOGLE_REDIRECT_URI=https://your-api.railway.app/api/auth/google/callback
 
 # Server (Railway auto-assigns PORT)
 HOST=0.0.0.0
-PORT=8000
+PORT=8080
 ```
 
 **Deployment Process:**
@@ -213,10 +213,10 @@ cp .env.example .env
 
 # Configure .env for local PostgreSQL
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jobtracker
-CORS_ORIGINS=http://localhost:3000,http://localhost:8000
+CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 SECRET_KEY=local-dev-secret-key
 HOST=0.0.0.0
-PORT=8000
+PORT=8080
 
 # Generate migrations (after schema changes)
 npm run db:generate
@@ -269,7 +269,7 @@ npm run dev
 # From project root
 docker-compose up
 
-# Backend runs on http://localhost:8000
+# Backend runs on http://localhost:8080
 # PostgreSQL on localhost:5432
 # Frontend on http://localhost:3000
 
@@ -388,8 +388,8 @@ psql "postgresql://postgres.[project-ref]:[password]@db.[region].supabase.co:543
 **Health Checks:**
 ```bash
 # Local
-curl http://localhost:8000/health
-curl http://localhost:8000/health/db
+curl http://localhost:8080/health
+curl http://localhost:8080/health/db
 
 # Railway
 curl https://your-app.railway.app/health
@@ -444,7 +444,7 @@ npm run db:studio
 CORS_ORIGINS=https://your-app.vercel.app,https://www.your-domain.com
 
 # Local development
-CORS_ORIGINS=http://localhost:3000,http://localhost:8000
+CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 ```
 
 ## Important Notes

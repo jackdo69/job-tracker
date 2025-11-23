@@ -29,19 +29,24 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/jobtracker
-      CORS_ORIGINS: '["http://localhost:3000","http://localhost"]'
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8080
+      SECRET_KEY: local-dev-secret-key-change-in-production
+      HOST: 0.0.0.0
+      PORT: 8080
+      GOOGLE_CLIENT_ID:
+      GOOGLE_CLIENT_SECRET:
+      GOOGLE_REDIRECT_URI: http://localhost:8080/api/auth/google/callback
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./backend:/app
-    command: >
-      sh -c "alembic upgrade head &&
-             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      - /app/node_modules
+    command: sh -c "npm run db:migrate:prod && npm start"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -59,7 +64,7 @@ services:
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://localhost:8080
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
       interval: 30s

@@ -10,11 +10,15 @@ restartPolicyType = "on_failure"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 
+# Note: Railway automatically assigns PORT (typically 8080)
+# The app reads from process.env.PORT in src/lib/config.ts
+
 [env]
-# Railway will provide PORT automatically
+# Railway will provide PORT automatically (typically 8080)
 # Add your other environment variables in Railway dashboard:
-# - DATABASE_URL
-# - CORS_ORIGINS
-# - GOOGLE_CLIENT_ID
-# - GOOGLE_CLIENT_SECRET
-# - SECRET_KEY
+# - DATABASE_URL (required) - Supabase PostgreSQL connection string
+# - SECRET_KEY (required) - JWT signing key
+# - CORS_ORIGINS (required) - e.g., https://your-app.vercel.app
+# - GOOGLE_CLIENT_ID (optional) - For Google OAuth
+# - GOOGLE_CLIENT_SECRET (optional) - For Google OAuth
+# - GOOGLE_REDIRECT_URI (optional) - e.g., https://api.railway.app/api/auth/google/callback

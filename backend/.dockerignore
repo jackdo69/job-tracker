@@ -6,12 +6,4 @@ dist
 .gitignore
 venv
 app
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.pytest_cache
-.mypy_cache
-alembic
-requirements.txt
 startup.sh

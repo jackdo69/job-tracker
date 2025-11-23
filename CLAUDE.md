@@ -69,7 +69,7 @@ docker-compose down
 
 **Service URLs:**
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
+- Backend API: http://localhost:8080
 - Database: localhost:5432
 
 ### Backend Development (Standalone)
@@ -309,8 +309,8 @@ docker exec -it job-tracker-db psql -U postgres -d jobtracker
 
 **Local:**
 ```bash
-curl http://localhost:8000/health
-curl http://localhost:8000/health/db
+curl http://localhost:8080/health
+curl http://localhost:8080/health/db
 ```
 
 **Production:**

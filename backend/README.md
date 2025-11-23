@@ -26,13 +26,13 @@ Create a `.env` file:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jobtracker
-CORS_ORIGINS=http://localhost:3000,http://localhost:8000
+CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 SECRET_KEY=your-secret-key-change-this-in-production
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
+GOOGLE_REDIRECT_URI=http://localhost:8080/api/auth/google/callback
 HOST=0.0.0.0
-PORT=8000
+PORT=8080
 LOG_LEVEL=info
 ```
 
@@ -95,7 +95,7 @@ npm run db:push         # Push schema to database (dev only)
 docker build -t job-tracker-backend .
 
 # Run container
-docker run -p 8000:8000 --env-file .env job-tracker-backend
+docker run -p 8080:8080 --env-file .env job-tracker-backend
 ```
 
 ### Docker Compose
@@ -104,7 +104,7 @@ docker run -p 8000:8000 --env-file .env job-tracker-backend
 backend:
   build: ./backend
   ports:
-    - "8000:8000"
+    - "8080:8080"
   environment:
     - DATABASE_URL=postgresql://postgres:postgres@db:5432/jobtracker
     - CORS_ORIGINS=http://localhost:3000
