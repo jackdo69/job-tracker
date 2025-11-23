@@ -1,5 +1,10 @@
-CREATE TYPE "public"."status_enum" AS ENUM('Applied', 'Interviewing', 'Offer', 'Rejected');--> statement-breakpoint
-CREATE TABLE "job_applications" (
+DO $$ BEGIN
+  CREATE TYPE "public"."status_enum" AS ENUM('Applied', 'Interviewing', 'Offer', 'Rejected');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "job_applications" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"company_name" varchar(255) NOT NULL,
@@ -16,7 +21,7 @@ CREATE TABLE "job_applications" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"hashed_password" varchar(255) NOT NULL,
@@ -27,4 +32,8 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "job_applications" ADD CONSTRAINT "job_applications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+DO $$ BEGIN
+  ALTER TABLE "job_applications" ADD CONSTRAINT "job_applications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
