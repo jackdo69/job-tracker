@@ -31,8 +31,8 @@ coverage/
 Thumbs.db
 
 # Drizzle
-drizzle/meta/*
-!drizzle/meta/.gitkeep
+# Keep migration metadata files for deployment
+!drizzle/meta/*.json
 
 # Build artifacts
 build/
