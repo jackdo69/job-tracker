@@ -1,0 +1,75 @@
+/**
+ * Zod schemas for job application validation
+ */
+import { z } from 'zod';
+
+/**
+ * Application status enum
+ */
+export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer', 'Rejected']);
+
+/**
+ * Base job application schema
+ */
+export const jobApplicationBaseSchema = z.object({
+  companyName: z.string().min(1).max(255),
+  positionTitle: z.string().min(1).max(255),
+  status: applicationStatusSchema.default('Applied'),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
+  applicationDate: z.coerce.date(),
+  salaryRange: z.string().max(100).optional().nullable(),
+  location: z.string().max(255).optional().nullable(),
+  notes: z.string().optional().nullable(),
+  orderIndex: z.number().int().min(0).default(0),
+});
+
+/**
+ * Schema for creating a job application
+ */
+export const jobApplicationCreateSchema = jobApplicationBaseSchema;
+
+/**
+ * Schema for updating a job application
+ */
+export const jobApplicationUpdateSchema = z.object({
+  companyName: z.string().min(1).max(255).optional(),
+  positionTitle: z.string().min(1).max(255).optional(),
+  status: applicationStatusSchema.optional(),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
+  applicationDate: z.coerce.date().optional(),
+  salaryRange: z.string().max(100).optional().nullable(),
+  location: z.string().max(255).optional().nullable(),
+  notes: z.string().optional().nullable(),
+  orderIndex: z.number().int().min(0).optional(),
+});
+
+/**
+ * Schema for moving a job application (drag-drop)
+ */
+export const jobApplicationMoveSchema = z.object({
+  status: applicationStatusSchema,
+  orderIndex: z.number().int().min(0),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
+});
+
+/**
+ * Schema for job application response
+ */
+export const jobApplicationResponseSchema = jobApplicationBaseSchema.extend({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+/**
+ * TypeScript types from Zod schemas
+ */
+export type JobApplicationCreate = z.infer<typeof jobApplicationCreateSchema>;
+export type JobApplicationUpdate = z.infer<typeof jobApplicationUpdateSchema>;
+export type JobApplicationMove = z.infer<typeof jobApplicationMoveSchema>;
+export type JobApplicationResponse = z.infer<typeof jobApplicationResponseSchema>;
+export type ApplicationStatus = z.infer<typeof applicationStatusSchema>;

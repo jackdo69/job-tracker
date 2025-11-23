@@ -1,28 +1,28 @@
-# Backend Dockerfile
-FROM python:3.11-slim
+# Backend Dockerfile for Node.js/TypeScript
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Install PostgreSQL client for migrations
+RUN apk add --no-cache postgresql-client
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy package files first for better caching
+COPY package*.json ./
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN npm ci --only=production
 
-# Copy application code
-COPY . .
+# Copy TypeScript source and config
+COPY tsconfig.json ./
+COPY drizzle.config.ts ./
+COPY src ./src
+COPY drizzle ./drizzle
 
-# Make startup script executable
-RUN chmod +x startup.sh
+# Build TypeScript
+RUN npm run build
 
 # Expose port
 EXPOSE 8000
 
-# Run startup script
-CMD ["./startup.sh"]
+# Run migrations and start server
+CMD ["sh", "-c", "npm run db:migrate && npm start"]
