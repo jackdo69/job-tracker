@@ -55,13 +55,14 @@ npm run dev
 ### Available Scripts
 
 ```bash
-npm run dev          # Start dev server with hot reload
-npm run build        # Build TypeScript to JavaScript
-npm start            # Start production server
-npm run db:generate  # Generate migrations from schema
-npm run db:migrate   # Run pending migrations
-npm run db:studio    # Open Drizzle Studio (database GUI)
-npm run db:push      # Push schema to database (dev only)
+npm run dev             # Start dev server with hot reload
+npm run build           # Build TypeScript to JavaScript
+npm start               # Start production server
+npm run db:generate     # Generate migrations from schema
+npm run db:migrate      # Run pending migrations (development)
+npm run db:migrate:prod # Run pending migrations (production, uses compiled JS)
+npm run db:studio       # Open Drizzle Studio (database GUI)
+npm run db:push         # Push schema to database (dev only)
 ```
 
 ## Database Migrations

@@ -21,11 +21,11 @@ COPY drizzle ./drizzle
 # Build TypeScript
 RUN npm run build
 
-# Remove devDependencies to reduce image size (optional)
+# Remove devDependencies to reduce image size
 RUN npm prune --production
 
 # Expose port
 EXPOSE 8000
 
-# Run migrations and start server
-CMD ["sh", "-c", "npm run db:migrate && npm start"]
+# Run migrations and start server (use compiled JS for migrations)
+CMD ["sh", "-c", "npm run db:migrate:prod && npm start"]

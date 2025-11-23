@@ -1,23 +1,63 @@
-# CLAUDE.md
+# Job Tracker - Project Context
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides high-level guidance to Claude Code when working with the Job Tracker repository.
 
 ## Project Overview
 
-Job Tracker is a full-stack job application tracking system with a Kanban board interface. The application uses React + TypeScript frontend with FastAPI + Python backend, deployed with Docker.
+Job Tracker is a full-stack job application tracking system with a Kanban board interface. The application uses React + TypeScript frontend with Node.js + TypeScript backend, deployed on modern cloud platforms.
 
 **Key Features:**
 - Drag-and-drop Kanban board for managing job applications across status columns (Applied → Interviewing → Offer/Rejected)
-- Analytics dashboard with visualizations
-- RESTful API with automatic OpenAPI documentation
-- PostgreSQL database with SQLAlchemy 2.0 ORM
+- Analytics dashboard with interactive charts and statistics
+- JWT-based authentication with email/password and Google OAuth
+- RESTful API with type-safe validation
+- PostgreSQL database with modern ORM
 
-## Development Commands
+## Tech Stack Summary
 
-### Local Development with Docker Compose
+### Backend
+- **Node.js 22 + TypeScript** - Runtime and language
+- **Hono** - Fast web framework
+- **Drizzle ORM** - TypeScript-first database ORM
+- **PostgreSQL** - Database (Supabase hosted)
+- **Deployed on:** Railway
+
+### Frontend
+- **React 18 + TypeScript** - UI framework
+- **Vite** - Build tool and dev server
+- **TanStack Query** - Server state management
+- **Tailwind CSS** - Styling
+- **Deployed on:** Vercel
+
+### Infrastructure
+- **Database:** Supabase (PostgreSQL 15)
+- **Backend:** Railway (Node.js container)
+- **Frontend:** Vercel (Static hosting + CDN)
+
+## Detailed Context Files
+
+For detailed information about each part of the stack:
+
+- **Backend:** See [backend/CLAUDE.md](./backend/CLAUDE.md)
+  - Tech stack details (Hono, Drizzle, JWT, etc.)
+  - Railway deployment configuration
+  - Supabase database setup
+  - API endpoints and architecture
+  - Development and migration workflows
+
+- **Frontend:** See [frontend/CLAUDE.md](./frontend/CLAUDE.md)
+  - Tech stack details (React, Vite, TanStack Query, etc.)
+  - Vercel deployment configuration
+  - Component architecture
+  - State management patterns
+  - Development workflows
+
+## Quick Start
+
+### Local Development with Docker Compose (Recommended)
 
 ```bash
-# Start all services (recommended for development)
+# Start all services (frontend, backend, database)
 docker-compose up
 
 # Rebuild after dependency changes
@@ -30,52 +70,34 @@ docker-compose down
 **Service URLs:**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/api/v1/docs
 - Database: localhost:5432
 
-### Backend Development
+### Backend Development (Standalone)
 
 ```bash
 cd backend
-
-# Setup virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+npm install
 
-# Run development server (with auto-reload)
-uvicorn app.main:app --reload --port 8000
+# Configure environment
+cp .env.example .env
+# Edit .env with DATABASE_URL, CORS_ORIGINS, SECRET_KEY
 
-# Run tests
-pytest
+# Run migrations
+npm run db:migrate
 
-# Code quality
-black .                # Format code
-flake8 .              # Lint
-mypy .                # Type checking
+# Start dev server (hot reload)
+npm run dev
 ```
 
-### Database Migrations
+**Backend scripts:**
+- `npm run dev` - Development server with hot reload
+- `npm run build` - Compile TypeScript
+- `npm run db:generate` - Generate migration from schema
+- `npm run db:migrate` - Apply migrations
 
-```bash
-cd backend
-
-# Create new migration after model changes
-alembic revision --autogenerate -m "description of changes"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback one migration
-alembic downgrade -1
-
-# View migration history
-alembic history
-```
-
-### Frontend Development
+### Frontend Development (Standalone)
 
 ```bash
 cd frontend
@@ -83,243 +105,292 @@ cd frontend
 # Install dependencies
 npm install
 
-# Run development server (with hot reload)
+# Configure environment
+cp .env.example .env
+# Edit .env with VITE_API_URL
+
+# Start dev server (hot reload)
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Code quality
-npm run lint          # ESLint
-npm run format        # Prettier
-npm run type-check    # TypeScript type checking
 ```
 
-### Docker Deployment
+**Frontend scripts:**
+- `npm run dev` - Development server with hot reload
+- `npm run build` - Build for production
+- `npm run lint` - ESLint
+- `npm run type-check` - TypeScript checking
 
-```bash
-# Start all services in production mode
-docker-compose up -d
-
-# Build and start with latest changes
-docker-compose up -d --build
-
-# View logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes (clean database)
-docker-compose down -v
-```
-
-## Architecture
-
-### Backend Structure
-
-The backend follows a clean architecture pattern with clear separation of concerns:
-
-```
-backend/app/
-├── api/
-│   ├── endpoints/
-│   │   ├── applications.py   # Job application CRUD endpoints
-│   │   └── analytics.py       # Analytics/dashboard endpoints
-│   └── deps.py                # Dependency injection (DB sessions)
-├── core/
-│   ├── config.py              # Settings (DATABASE_URL, CORS_ORIGINS, etc.)
-│   └── database.py            # SQLAlchemy engine and session
-├── models/
-│   └── job_application.py     # SQLAlchemy ORM models
-├── schemas/
-│   ├── job_application.py     # Pydantic schemas for validation
-│   └── analytics.py           # Analytics response schemas
-├── services/
-│   ├── job_service.py         # Business logic for job applications
-│   └── analytics_service.py   # Analytics calculations
-└── main.py                    # FastAPI app initialization
-```
-
-**Key Patterns:**
-- **Separation of Concerns**: API endpoints → Services → Models
-- **Dependency Injection**: Database sessions injected via `deps.py`
-- **Pydantic Schemas**: Separate schemas for Create, Update, and Response
-- **Service Layer**: All business logic lives in `services/`, not endpoints
-
-### Frontend Structure
-
-```
-frontend/src/
-├── components/
-│   ├── KanbanBoard/          # Drag-and-drop Kanban implementation
-│   ├── JobForm/              # Create/Edit job modals
-│   ├── Analytics/            # Dashboard with charts
-│   └── common/               # Shared components (Layout, etc.)
-├── hooks/
-│   ├── useJobs.ts            # React Query hooks for job CRUD
-│   └── useAnalytics.ts       # React Query hooks for analytics
-├── services/
-│   └── api.ts                # Axios client and API functions
-├── types/
-│   └── job.ts                # TypeScript interfaces
-└── App.tsx                   # Main app with routing
-```
-
-**Key Patterns:**
-- **TanStack Query**: All server state managed via React Query (not Redux/Zustand)
-- **Optimistic Updates**: Drag-drop uses optimistic updates for instant UI feedback
-- **@dnd-kit/core**: Modern drag-and-drop library (not react-beautiful-dnd)
-- **Tailwind CSS**: Utility-first styling (no component library like MUI)
+## Architecture Overview
 
 ### Data Model
 
-**JobApplication** is the core entity:
+**Core Entity: JobApplication**
 
 ```typescript
 {
   id: UUID
+  user_id: UUID                     // Foreign key to users table
   company_name: string
   position_title: string
   status: 'Applied' | 'Interviewing' | 'Offer' | 'Rejected'
-  interview_stage?: string      // e.g., "Phone Screen", "Technical Round 2"
-  rejection_stage?: string      // e.g., "After Phone Screen"
+  interview_stage?: string          // e.g., "Phone Screen", "Technical Round 2"
+  rejection_stage?: string          // e.g., "After Phone Screen"
   application_date: Date
   salary_range?: string
   location?: string
   notes?: string
-  order_index: number           // For Kanban column ordering
+  order_index: number               // For Kanban column ordering
   created_at: Date
   updated_at: Date
 }
 ```
 
-**Important Details:**
-- Single `status` enum with optional `interview_stage`/`rejection_stage` fields for sub-states
-- `order_index` maintains card order within each Kanban column (independent ordering per status)
-- Database has indexes on `status` and `application_date` for performance
+**Key Design Decisions:**
+- Single `status` enum with optional stage fields (simpler than nested tables)
+- `order_index` maintains independent ordering within each status column
+- User-scoped data (all applications belong to a user)
+- Indexes on `status` and `application_date` for performance
 
 ### API Endpoints
 
-All endpoints are prefixed with `/api/v1`:
+All endpoints prefixed with `/api`:
 
-```
-GET    /api/v1/applications              # List all applications
-POST   /api/v1/applications              # Create new application
-GET    /api/v1/applications/{id}         # Get single application
-PUT    /api/v1/applications/{id}         # Update application
-DELETE /api/v1/applications/{id}         # Delete application
-PATCH  /api/v1/applications/{id}/move    # Move to new status (optimized for drag-drop)
-GET    /api/v1/analytics                 # Get dashboard statistics
-GET    /api/v1/health                    # Health check
-```
+**Authentication (Public):**
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login (returns JWT)
+- `GET /api/auth/google/login` - Get OAuth URL
+- `GET /api/auth/google/callback` - Handle OAuth callback
 
-**Special Endpoint:** The `/move` endpoint is optimized for drag-drop operations. It only requires:
-```json
-{
-  "status": "Interviewing",
-  "order_index": 3,
-  "interview_stage": "Technical Round 1"  // optional
-}
-```
+**Job Applications (Protected):**
+- `GET /api/applications` - List user's applications
+- `POST /api/applications` - Create application
+- `GET /api/applications/:id` - Get single application
+- `PUT /api/applications/:id` - Update application
+- `DELETE /api/applications/:id` - Delete application
+- `PATCH /api/applications/:id/move` - Optimized drag-drop endpoint
+
+**Analytics (Protected):**
+- `GET /api/analytics` - Dashboard statistics
+
+**Health Checks:**
+- `GET /health` - Simple health check
+- `GET /health/db` - Database health with response time
 
 ### State Management
 
-- **Server State**: TanStack Query manages all API data with automatic caching and invalidation
-- **UI State**: Local React state (useState/useReducer) for modals, forms, etc.
-- **Optimistic Updates**: Drag-drop operations update UI immediately, then sync with server
-- **No Global State Store**: No Redux/Zustand/Recoil - React Query handles server state, local state for everything else
+**Frontend:**
+- **TanStack Query** - All server state (jobs, analytics, user)
+- **React Context** - UI state (theme, auth status)
+- **No Redux/Zustand** - React Query eliminates need for global state
 
-### Environment Variables
+**Optimistic Updates:**
+- Drag-drop operations update UI immediately
+- Rollback on API failure
+- Background re-sync after success
 
-**Backend** (.env):
-```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jobtracker
-CORS_ORIGINS=http://localhost:3000,http://localhost
-```
+### Authentication Flow
 
-**Frontend** (.env):
-```bash
-VITE_API_URL=http://localhost:8000
-```
+1. User logs in → Backend generates JWT token
+2. Frontend stores token in localStorage
+3. Axios interceptor adds `Authorization: Bearer <token>` to all requests
+4. Backend middleware validates JWT on protected routes
+5. 401 responses → Auto-logout and redirect to login
 
-Note: Frontend uses Vite (not Create React App), so environment variables are prefixed with `VITE_`.
-
-## Important Implementation Notes
-
-### When Working with the Kanban Board
-
-- Drag-drop uses `@dnd-kit/core` with `@dnd-kit/sortable` for column ordering
-- Each status column has independent `order_index` values (0, 1, 2, ...)
-- Use the `/move` endpoint for drag-drop operations (more efficient than full PUT)
-- Optimistic updates are implemented in the frontend hooks
-
-### When Working with the Database
-
-- Always use Alembic for schema changes (never modify models and run directly)
-- Run `alembic revision --autogenerate` after model changes
-- The database connection uses SQLAlchemy 2.0 async patterns
-- Session management is handled via dependency injection in `api/deps.py`
-
-### When Adding New Features
-
-1. **Backend**: Create model → Create schema → Create service → Create endpoint
-2. **Frontend**: Define TypeScript types → Create API function → Create React Query hook → Build component
-3. **Database**: Always create migration with `alembic revision --autogenerate`
-
-### Testing
-
-- Backend tests use pytest with async support (`pytest-asyncio`)
-- Use `httpx.AsyncClient` for testing FastAPI endpoints
-- Frontend tests would use React Testing Library (not currently implemented)
-
-## Common Development Scenarios
+## Development Workflows
 
 ### Adding a New Field to JobApplication
 
-1. Update `backend/app/models/job_application.py` with new field
-2. Update `backend/app/schemas/job_application.py` schemas
-3. Create migration: `cd backend && alembic revision --autogenerate -m "add new field"`
-4. Apply migration: `alembic upgrade head`
-5. Update frontend `types/job.ts` interface
-6. Update relevant components/forms
+1. **Backend:**
+   ```bash
+   cd backend
+   # Edit src/db/schema.ts
+   npm run db:generate
+   npm run db:migrate
+   ```
+
+2. **Frontend:**
+   ```typescript
+   // Edit frontend/src/types/job.ts
+   // Update components/forms as needed
+   ```
 
 ### Adding a New API Endpoint
 
-1. Create function in appropriate service (`backend/app/services/`)
-2. Add endpoint in `backend/app/api/endpoints/`
-3. Include router in `backend/app/main.py` if new router
-4. Create corresponding API function in `frontend/src/services/api.ts`
-5. Create React Query hook in `frontend/src/hooks/`
+1. **Backend:**
+   - Add route in `src/routes/`
+   - Add business logic in `src/services/`
+   - Add Zod validation in `src/schemas/`
 
-### Debugging
+2. **Frontend:**
+   - Add API function in `src/services/api.ts`
+   - Create React Query hook in `src/hooks/`
+   - Use hook in component
 
-- Backend: Check `http://localhost:8000/api/v1/docs` for interactive API testing
-- Frontend: Use React Query DevTools (already installed)
-- Database: Use `docker exec -it job-tracker-db psql -U postgres -d jobtracker`
-- Logs: `docker-compose logs -f backend` or `docker-compose logs -f frontend`
+### Database Migrations
 
-## Technical Decisions Reference
+**Always use migrations (never manual DB changes):**
 
-Key architectural decisions (see docs/TECHNICAL_DECISIONS.md for details):
+```bash
+cd backend
 
-- **@dnd-kit/core** chosen over react-beautiful-dnd for better performance and active maintenance
-- **TanStack Query** for server state instead of Redux (purpose-built for API data)
-- **SQLAlchemy 2.0** with async support
-- **Tailwind CSS** for styling (no component library)
-- **Dedicated `/move` endpoint** for efficient drag-drop updates
-- **Single status enum + stage fields** instead of nested state tables
-- **No authentication in v1** - designed to add later with user_id foreign key
+# After changing src/db/schema.ts
+npm run db:generate
+
+# Review generated SQL in drizzle/ directory
+# Apply migration
+npm run db:migrate
+```
+
+## Deployment
+
+### Production Architecture
+
+```
+┌─────────────┐       HTTPS        ┌──────────────┐
+│   Vercel    │ ──────────────────> │   Railway    │
+│  (Frontend) │                     │  (Backend)   │
+└─────────────┘                     └──────────────┘
+                                           │
+                                           │ PostgreSQL
+                                           ▼
+                                    ┌──────────────┐
+                                    │   Supabase   │
+                                    │  (Database)  │
+                                    └──────────────┘
+```
+
+### Environment Variables
+
+**Backend (Railway):**
+```env
+DATABASE_URL=postgresql://postgres.[project-ref]:***@aws-0-[region].pooler.supabase.com:6543/postgres
+SECRET_KEY=***
+CORS_ORIGINS=https://your-app.vercel.app
+GOOGLE_CLIENT_ID=***
+GOOGLE_CLIENT_SECRET=***
+```
+
+**Frontend (Vercel):**
+```env
+VITE_API_URL=https://your-backend.railway.app
+```
+
+**Note:** Environment variables must be set in platform dashboards (Railway/Vercel), not committed to repo.
+
+## Common Tasks
+
+### View Logs
+
+**Local:**
+```bash
+docker-compose logs -f backend
+docker-compose logs -f frontend
+```
+
+**Production:**
+- Backend: Railway Dashboard → Deployments → Logs
+- Frontend: Vercel Dashboard → Deployments → Logs
+
+### Database Access
+
+**Local:**
+```bash
+# GUI (Drizzle Studio)
+cd backend && npm run db:studio
+
+# CLI
+docker exec -it job-tracker-db psql -U postgres -d jobtracker
+```
+
+**Production:**
+- Supabase Dashboard → SQL Editor
+- Supabase Dashboard → Table Editor
+
+### Health Checks
+
+**Local:**
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/health/db
+```
+
+**Production:**
+```bash
+curl https://your-backend.railway.app/health
+```
+
+## Important Notes
+
+### Before Making Changes
+
+1. **Always create a git branch** for features/fixes
+2. **Test locally first** with `docker-compose up`
+3. **Run type checking** (`npm run type-check` in both directories)
+4. **Check logs** for errors before deploying
+
+### Database Migrations
+
+- **Never skip migrations** in production
+- **Always review generated SQL** before applying
+- **Test migrations locally** before deploying to Railway
+- **Migrations run automatically** on Railway deployment (Dockerfile CMD)
+
+### Security
+
+- **Never commit `.env` files** (use `.env.example` templates)
+- **Rotate `SECRET_KEY` periodically**
+- **Use HTTPS only** in production (automatic on Railway/Vercel)
+- **Validate all input** with Zod schemas
+- **Review dependencies** for vulnerabilities
+
+### Docker Compose
+
+- Good for local full-stack development
+- Mirrors production architecture
+- Database data persists in Docker volume
+- Use `docker-compose down -v` to reset database
+
+### Platform-Specific
+
+- **Railway:** Auto-deploys from GitHub, requires Dockerfile
+- **Vercel:** Auto-deploys from GitHub, detects Vite automatically
+- **Supabase:** Use pooler connection (port 6543) for serverless environments
+
+## Troubleshooting
+
+### CORS Errors
+- Update `CORS_ORIGINS` in Railway to include Vercel URL
+- Check both production and preview URLs
+
+### Authentication Issues
+- Verify `SECRET_KEY` matches between deployments
+- Check JWT token in browser localStorage
+- Test with `/api/auth/me` endpoint
+
+### Database Connection
+- Ensure using Supabase pooler URL (port 6543)
+- Check Supabase connection limit (60 on free tier)
+- Verify DATABASE_URL in Railway environment
+
+### Build Failures
+- Check Node.js version (requires 18+)
+- Clear `node_modules` and reinstall
+- Review deployment logs in platform dashboard
 
 ## Project Goals
 
-This project was built to:
-1. Learn Python backend development with FastAPI
-2. Learn Docker containerization and deployment
-3. Build a practical tool for tracking job applications
-4. Implement modern frontend patterns (React Query, dnd-kit)
-- do not run sub task in background terminal unless I specify it in the command
+This project demonstrates:
+1. Modern full-stack TypeScript development
+2. Cloud-native deployment (Railway, Vercel, Supabase)
+3. Type-safe API with end-to-end TypeScript
+4. Modern React patterns (Hooks, Context, React Query)
+5. Database migrations and ORM best practices
+
+## Additional Resources
+
+- Backend details: [backend/CLAUDE.md](./backend/CLAUDE.md)
+- Frontend details: [frontend/CLAUDE.md](./frontend/CLAUDE.md)
+- Docker Compose: [docker-compose.yml](./docker-compose.yml)
+
+---
+
+**Important:** Do not run sub-tasks in background terminal unless explicitly requested.
