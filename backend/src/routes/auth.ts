@@ -118,6 +118,8 @@ auth.get('/google/callback', async (c) => {
     if (error instanceof HTTPException) {
       throw error;
     }
+    // Log the actual error for debugging
+    logger.error({ err: error, code }, 'Google OAuth callback failed');
     throw new HTTPException(500, { message: 'Internal server error' });
   }
 });

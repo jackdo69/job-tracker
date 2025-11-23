@@ -6,6 +6,7 @@ import pino from 'pino';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export const logger = pino({
+  name: 'job-tracker-api',
   level: process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info'),
   transport: isDevelopment
     ? {
@@ -14,7 +15,7 @@ export const logger = pino({
           colorize: true,
           translateTime: 'HH:MM:ss.l',
           ignore: 'pid,hostname',
-          messageFormat: '{levelLabel} - {msg}',
+          messageFormat: '{name} - {msg}',
           levelFirst: true,
         },
       }

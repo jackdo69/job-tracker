@@ -176,7 +176,13 @@ async function getGoogleTokens(
   });
 
   if (!response.ok) {
-    throw new HTTPException(400, { message: 'Failed to exchange authorization code' });
+    const errorBody = await response.text();
+    console.error('Google token exchange failed:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorBody
+    });
+    throw new HTTPException(400, { message: `Failed to exchange authorization code: ${errorBody}` });
   }
 
   return response.json() as Promise<{ access_token: string; id_token: string }>;
