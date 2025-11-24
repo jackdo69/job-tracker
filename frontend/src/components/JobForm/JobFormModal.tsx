@@ -21,13 +21,13 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   const isEditing = !!job;
 
   const [formData, setFormData] = useState({
-    company_name: '',
-    position_title: '',
+    companyName: '',
+    positionTitle: '',
     status: ApplicationStatus.APPLIED,
-    interview_stage: '',
-    rejection_stage: '',
-    application_date: new Date().toISOString().split('T')[0],
-    salary_range: '',
+    interviewStage: '',
+    rejectionStage: '',
+    applicationDate: new Date().toISOString().split('T')[0],
+    salaryRange: '',
     location: '',
     notes: '',
   });
@@ -36,26 +36,26 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   useEffect(() => {
     if (job) {
       setFormData({
-        company_name: job.company_name,
-        position_title: job.position_title,
+        companyName: job.companyName,
+        positionTitle: job.positionTitle,
         status: job.status,
-        interview_stage: job.interview_stage || '',
-        rejection_stage: job.rejection_stage || '',
-        application_date: job.application_date.split('T')[0],
-        salary_range: job.salary_range || '',
+        interviewStage: job.interviewStage || '',
+        rejectionStage: job.rejectionStage || '',
+        applicationDate: job.applicationDate.split('T')[0],
+        salaryRange: job.salaryRange || '',
         location: job.location || '',
         notes: job.notes || '',
       });
     } else {
       // Reset form for new job
       setFormData({
-        company_name: '',
-        position_title: '',
+        companyName: '',
+        positionTitle: '',
         status: ApplicationStatus.APPLIED,
-        interview_stage: '',
-        rejection_stage: '',
-        application_date: new Date().toISOString().split('T')[0],
-        salary_range: '',
+        interviewStage: '',
+        rejectionStage: '',
+        applicationDate: new Date().toISOString().split('T')[0],
+        salaryRange: '',
         location: '',
         notes: '',
       });
@@ -66,13 +66,13 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     e.preventDefault();
 
     const data: JobApplicationCreate = {
-      company_name: formData.company_name,
-      position_title: formData.position_title,
+      companyName: formData.companyName,
+      positionTitle: formData.positionTitle,
       status: formData.status,
-      interview_stage: formData.interview_stage || null,
-      rejection_stage: formData.rejection_stage || null,
-      application_date: new Date(formData.application_date).toISOString(),
-      salary_range: formData.salary_range || null,
+      interviewStage: formData.interviewStage || null,
+      rejectionStage: formData.rejectionStage || null,
+      applicationDate: new Date(formData.applicationDate).toISOString(),
+      salaryRange: formData.salaryRange || null,
       location: formData.location || null,
       notes: formData.notes || null,
     };
@@ -130,9 +130,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                 <input
                   type="text"
                   required
-                  value={formData.company_name}
+                  value={formData.companyName}
                   onChange={(e) =>
-                    setFormData({ ...formData, company_name: e.target.value })
+                    setFormData({ ...formData, companyName: e.target.value })
                   }
                   className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -146,9 +146,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                 <input
                   type="text"
                   required
-                  value={formData.position_title}
+                  value={formData.positionTitle}
                   onChange={(e) =>
-                    setFormData({ ...formData, position_title: e.target.value })
+                    setFormData({ ...formData, positionTitle: e.target.value })
                   }
                   className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -187,9 +187,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                   <input
                     type="text"
                     placeholder="e.g., Phone Screen, Technical Round 1"
-                    value={formData.interview_stage}
+                    value={formData.interviewStage}
                     onChange={(e) =>
-                      setFormData({ ...formData, interview_stage: e.target.value })
+                      setFormData({ ...formData, interviewStage: e.target.value })
                     }
                     className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -205,9 +205,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                   <input
                     type="text"
                     placeholder="e.g., After Phone Screen, After Onsite"
-                    value={formData.rejection_stage}
+                    value={formData.rejectionStage}
                     onChange={(e) =>
-                      setFormData({ ...formData, rejection_stage: e.target.value })
+                      setFormData({ ...formData, rejectionStage: e.target.value })
                     }
                     className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -222,9 +222,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                 <input
                   type="date"
                   required
-                  value={formData.application_date}
+                  value={formData.applicationDate}
                   onChange={(e) =>
-                    setFormData({ ...formData, application_date: e.target.value })
+                    setFormData({ ...formData, applicationDate: e.target.value })
                   }
                   className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -238,9 +238,9 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                 <input
                   type="text"
                   placeholder="e.g., $120k-$150k"
-                  value={formData.salary_range}
+                  value={formData.salaryRange}
                   onChange={(e) =>
-                    setFormData({ ...formData, salary_range: e.target.value })
+                    setFormData({ ...formData, salaryRange: e.target.value })
                   }
                   className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />

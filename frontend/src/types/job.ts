@@ -11,49 +11,49 @@ export enum ApplicationStatus {
 
 export interface JobApplication {
   id: string;
-  company_name: string;
-  position_title: string;
+  companyName: string;
+  positionTitle: string;
   status: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index: number;
-  created_at: string;
-  updated_at: string;
+  orderIndex: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface JobApplicationCreate {
-  company_name: string;
-  position_title: string;
+  companyName: string;
+  positionTitle: string;
   status: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index?: number;
+  orderIndex?: number;
 }
 
 export interface JobApplicationUpdate {
-  company_name?: string;
-  position_title?: string;
+  companyName?: string;
+  positionTitle?: string;
   status?: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date?: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate?: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index?: number;
+  orderIndex?: number;
 }
 
 export interface JobApplicationMove {
   status: ApplicationStatus;
-  order_index: number;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
+  orderIndex: number;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
 }
