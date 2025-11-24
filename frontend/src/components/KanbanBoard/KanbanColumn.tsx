@@ -47,13 +47,13 @@ export function KanbanColumn({ status, jobs, onEdit, onDelete }: KanbanColumnPro
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 min-w-[280px] ${config.color} rounded-lg p-4 ${
+      className={`w-full md:flex-1 md:min-w-[280px] ${config.color} rounded-lg p-3 md:p-4 ${
         isOver ? 'ring-2 ring-blue-500' : ''
       }`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-lg text-gray-900 dark:text-white">{config.title}</h2>
-        <span className="bg-white dark:bg-gray-700 px-2 py-1 rounded-full text-sm font-medium text-gray-700 dark:text-gray-200">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <h2 className="font-bold text-base md:text-lg text-gray-900 dark:text-white">{config.title}</h2>
+        <span className="bg-white dark:bg-gray-700 px-2 py-1 rounded-full text-xs md:text-sm font-medium text-gray-700 dark:text-gray-200">
           {jobs.length}
         </span>
       </div>

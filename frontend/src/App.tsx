@@ -28,6 +28,7 @@ function MainApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
 
   const handleEdit = (job: JobApplication) => {
@@ -43,31 +44,41 @@ function MainApp() {
   const handleNewJob = () => {
     setEditingJob(null);
     setIsModalOpen(true);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMobileMenuOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Job Tracker</h1>
+            {/* Logo and Title */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                Job Tracker
+              </h1>
               {user && (
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1 truncate hidden sm:block">
                   {user.full_name || user.email}
                 </p>
               )}
             </div>
-            <div className="flex gap-4 items-center">
-              {/* Theme Toggle */}
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex gap-3 items-center">
               <ThemeToggle />
 
               {/* View Toggle */}
               <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                 <button
                   onClick={() => setActiveView('board')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeView === 'board'
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -77,7 +88,7 @@ function MainApp() {
                 </button>
                 <button
                   onClick={() => setActiveView('analytics')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeView === 'analytics'
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -90,7 +101,107 @@ function MainApp() {
               {/* New Application Button */}
               <button
                 onClick={handleNewJob}
-                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="hidden lg:inline">New Application</span>
+                <span className="lg:hidden">New</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={logout}
+                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 lg:px-4 py-2 rounded-md font-medium transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="flex md:hidden gap-2 items-center">
+              <ThemeToggle />
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Menu"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {mobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+              {/* View Toggle */}
+              <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => {
+                    setActiveView('board');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === 'board'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  Board
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView('analytics');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === 'analytics'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  Analytics
+                </button>
+              </div>
+
+              {/* New Application Button */}
+              <button
+                onClick={handleNewJob}
+                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -110,18 +221,18 @@ function MainApp() {
 
               {/* Logout Button */}
               <button
-                onClick={logout}
-                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md font-medium transition-colors"
+                onClick={handleLogout}
+                className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md font-medium transition-colors"
               >
                 Logout
               </button>
             </div>
-          </div>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8">
         {activeView === 'board' ? (
           <KanbanBoard onEdit={handleEdit} />
         ) : (

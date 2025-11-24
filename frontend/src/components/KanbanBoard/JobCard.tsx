@@ -34,20 +34,23 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-4 mb-3 cursor-move hover:shadow-md transition-shadow"
+      className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-3 md:p-4 mb-2 md:mb-3 cursor-move hover:shadow-md transition-shadow touch-manipulation"
     >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-gray-900 dark:text-white">{job.position_title}</h3>
-        <div className="flex gap-1">
+      <div className="flex justify-between items-start mb-2 gap-2">
+        <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-white flex-1 min-w-0 break-words">
+          {job.position_title}
+        </h3>
+        <div className="flex gap-1 flex-shrink-0">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit(job);
             }}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1.5 md:p-1 touch-manipulation"
+            aria-label="Edit"
           >
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 md:w-4 md:h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -67,10 +70,11 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
                 onDelete(job.id);
               }
             }}
-            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1"
+            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1.5 md:p-1 touch-manipulation"
+            aria-label="Delete"
           >
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 md:w-4 md:h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -86,25 +90,25 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         </div>
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{job.company_name}</p>
+      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.company_name}</p>
 
       {job.interview_stage && (
-        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Stage: {job.interview_stage}</p>
+        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interview_stage}</p>
       )}
 
       {job.rejection_stage && (
-        <p className="text-xs text-red-600 dark:text-red-400 mb-1">
+        <p className="text-xs text-red-600 dark:text-red-400 mb-1 truncate">
           Rejected at: {job.rejection_stage}
         </p>
       )}
 
-      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-2">
-        <span>{format(new Date(job.application_date), 'MMM d, yyyy')}</span>
-        {job.salary_range && <span>{job.salary_range}</span>}
+      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-2 gap-2">
+        <span className="truncate">{format(new Date(job.application_date), 'MMM d, yyyy')}</span>
+        {job.salary_range && <span className="truncate flex-shrink-0">{job.salary_range}</span>}
       </div>
 
       {job.location && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{job.location}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{job.location}</p>
       )}
     </div>
   );
