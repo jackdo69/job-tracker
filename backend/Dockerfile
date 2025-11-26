@@ -6,21 +6,23 @@ WORKDIR /app
 # Install PostgreSQL client for migrations
 RUN apk add --no-cache postgresql-client
 
-# Accept GitHub token as build argument
-ARG GITHUB_NPM_PUBLISH_TOKEN
-
 # Copy package files first for better caching
 COPY package*.json ./
 
-# Create .npmrc with the token (don't copy from source to avoid committing secrets)
-RUN echo "@jackdo69:registry=https://npm.pkg.github.com" > .npmrc && \
-    echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc
+# Accept GitHub token as build argument (must be after COPY for proper scope)
+ARG GITHUB_NPM_PUBLISH_TOKEN
 
-# Install ALL dependencies (including devDependencies for TypeScript build)
-RUN npm ci
-
-# Remove .npmrc to avoid exposing credentials in image
-RUN rm -f .npmrc
+# Create .npmrc with the token and install dependencies in a single RUN to ensure token is available
+RUN set -eux; \
+    if [ -z "$GITHUB_NPM_PUBLISH_TOKEN" ]; then \
+        echo "ERROR: GITHUB_NPM_PUBLISH_TOKEN build arg is not set!"; \
+        echo "Make sure the token is set in Railway environment variables"; \
+        exit 1; \
+    fi; \
+    echo "@jackdo69:registry=https://npm.pkg.github.com" > .npmrc; \
+    echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc; \
+    npm ci; \
+    rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./

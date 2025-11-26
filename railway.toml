@@ -6,7 +6,7 @@ dockerContext = "backend"
 
 # Pass environment variables as Docker build arguments
 [build.buildArgs]
-GITHUB_NPM_PUBLISH_TOKEN = "${{GITHUB_NPM_PUBLISH_TOKEN}}"
+GITHUB_NPM_PUBLISH_TOKEN = "${GITHUB_NPM_PUBLISH_TOKEN}"
 
 [deploy]
 restartPolicyMaxRetries = 10
