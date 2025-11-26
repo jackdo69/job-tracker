@@ -1,28 +1,27 @@
+# syntax=docker/dockerfile:1.0-experimental
 # Backend Dockerfile for Node.js/TypeScript
-FROM node:22-alpine
+FROM node:22-alpine AS build
+
+# Declare an argument to receive the token during the build
+ARG GITHUB_NPM_PUBLISH_TOKEN
+
+# Set the GITHUB_NPM_PUBLISH_TOKEN environment variable within the container
+ENV GITHUB_NPM_PUBLISH_TOKEN=${GITHUB_NPM_PUBLISH_TOKEN}
 
 WORKDIR /app
 
 # Install PostgreSQL client for migrations
 RUN apk add --no-cache postgresql-client
 
-# Copy package files first for better caching
-COPY package*.json ./
+# Copy package files and the .npmrc file
+COPY package.json package-lock.json ./
+COPY .npmrc .npmrc
 
-# Accept GitHub token as build argument (must be after COPY for proper scope)
-ARG GITHUB_NPM_PUBLISH_TOKEN
+# Run npm install, which will use the token from the environment variable
+RUN npm ci
 
-# Create .npmrc with the token and install dependencies in a single RUN to ensure token is available
-RUN set -eux; \
-    if [ -z "$GITHUB_NPM_PUBLISH_TOKEN" ]; then \
-        echo "ERROR: GITHUB_NPM_PUBLISH_TOKEN build arg is not set!"; \
-        echo "Make sure the token is set in Railway environment variables"; \
-        exit 1; \
-    fi; \
-    echo "@jackdo69:registry=https://npm.pkg.github.com" > .npmrc; \
-    echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc; \
-    npm ci; \
-    rm -f .npmrc
+# Remove the .npmrc file for security, once packages are installed
+RUN rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./
