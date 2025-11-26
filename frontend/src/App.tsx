@@ -13,7 +13,7 @@ import { Login, Register, GoogleCallback } from './components/Auth';
 import { KanbanBoard } from './components/KanbanBoard/KanbanBoard';
 import { JobFormModal } from './components/JobForm/JobFormModal';
 import { Dashboard } from './components/Analytics/Dashboard';
-import type { JobApplication } from './types/job';
+import type { JobApplication } from '@jackdo69/job-tracker-shared-types';
 
 const queryClient = new QueryClient({
   defaultOptions: {

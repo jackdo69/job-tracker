@@ -4,7 +4,8 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import { users, type User } from '../db/schema.js';
-import type { UserCreate, LoginRequest, LoginResponse, UserResponse } from '../schemas/user.js';
+import type { UserResponse } from '../schemas/user.js';
+import type { LoginRequest, LoginResponse, RegisterRequest } from '@jackdo69/job-tracker-shared-types';
 import { verifyPassword, getPasswordHash, createAccessToken } from '../lib/auth.js';
 import { HTTPException } from 'hono/http-exception';
 import crypto from 'crypto';
@@ -28,7 +29,7 @@ export async function getUserById(userId: string): Promise<User | undefined> {
 /**
  * Register a new user
  */
-export async function registerUser(userData: UserCreate): Promise<UserResponse> {
+export async function registerUser(userData: RegisterRequest): Promise<UserResponse> {
   try {
     // Check if user already exists
     const existingUser = await getUserByEmail(userData.email);
@@ -44,7 +45,7 @@ export async function registerUser(userData: UserCreate): Promise<UserResponse> 
         id: crypto.randomUUID(),
         email: userData.email,
         hashedPassword,
-        fullName: userData.fullName,
+        fullName: userData.full_name,
         isActive: true,
       })
       .returning();
@@ -52,7 +53,7 @@ export async function registerUser(userData: UserCreate): Promise<UserResponse> 
     return {
       id: newUser.id,
       email: newUser.email,
-      fullName: newUser.fullName,
+      full_name: newUser.fullName,
       isActive: newUser.isActive,
       createdAt: newUser.createdAt,
       updatedAt: newUser.updatedAt,
@@ -109,7 +110,7 @@ export async function authenticateUser(loginData: LoginRequest): Promise<LoginRe
     user: {
       id: user.id,
       email: user.email,
-      fullName: user.fullName,
+      full_name: user.fullName,
       isActive: user.isActive,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -328,7 +329,7 @@ export async function handleGoogleCallback(
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.fullName,
+        full_name: user.fullName,
         isActive: user.isActive,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,

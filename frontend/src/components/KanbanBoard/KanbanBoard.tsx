@@ -12,7 +12,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { useJobs, useMoveJob, useDeleteJob } from '../../hooks/useJobs';
-import { ApplicationStatus, type JobApplication } from '../../types/job';
+import { ApplicationStatus, type JobApplication } from '@jackdo69/job-tracker-shared-types';
 import { KanbanColumn } from './KanbanColumn';
 import { JobCard } from './JobCard';
 

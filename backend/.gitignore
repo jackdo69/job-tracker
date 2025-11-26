@@ -15,6 +15,9 @@ dist/
 .env.local
 .env.*.local
 
+# npm config (contains auth token, DO NOT commit!)
+.npmrc
+
 # IDE
 .vscode/
 .idea/

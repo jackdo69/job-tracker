@@ -2,6 +2,7 @@
  * Zod schemas for job application validation
  */
 import { z } from 'zod';
+import type { ApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 
 /**
  * Application status enum
@@ -66,10 +67,7 @@ export const jobApplicationResponseSchema = jobApplicationBaseSchema.extend({
 });
 
 /**
- * TypeScript types from Zod schemas
+ * TypeScript types from Zod schemas (for internal validation use only)
+ * Use types from @jackdo69/job-tracker-shared-types for application logic
  */
-export type JobApplicationCreate = z.infer<typeof jobApplicationCreateSchema>;
-export type JobApplicationUpdate = z.infer<typeof jobApplicationUpdateSchema>;
-export type JobApplicationMove = z.infer<typeof jobApplicationMoveSchema>;
 export type JobApplicationResponse = z.infer<typeof jobApplicationResponseSchema>;
-export type ApplicationStatus = z.infer<typeof applicationStatusSchema>;

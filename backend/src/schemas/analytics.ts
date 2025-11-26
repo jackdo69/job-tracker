@@ -41,9 +41,7 @@ export const analyticsResponseSchema = z.object({
 });
 
 /**
- * TypeScript types from Zod schemas
+ * TypeScript types from Zod schemas (for validation only)
+ * Use types from @jackdo69/job-tracker-shared-types for application logic
  */
-export type ApplicationsByStatus = z.infer<typeof applicationsByStatusSchema>;
-export type ApplicationsOverTime = z.infer<typeof applicationsOverTimeSchema>;
-export type AverageTimePerStage = z.infer<typeof averageTimePerStageSchema>;
 export type AnalyticsResponse = z.infer<typeof analyticsResponseSchema>;

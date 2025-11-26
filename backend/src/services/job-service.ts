@@ -8,7 +8,7 @@ import type {
   JobApplicationCreate,
   JobApplicationUpdate,
   JobApplicationMove,
-} from '../schemas/job-application.js';
+} from '@jackdo69/job-tracker-shared-types';
 import { logger } from '../lib/logger.js';
 
 /**

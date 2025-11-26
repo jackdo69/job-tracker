@@ -7,7 +7,7 @@ import {
   ApplicationStatus,
   type JobApplication,
   type JobApplicationCreate,
-} from '../../types/job';
+} from '@jackdo69/job-tracker-shared-types';
 
 interface JobFormModalProps {
   isOpen: boolean;

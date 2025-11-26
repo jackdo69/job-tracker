@@ -2,7 +2,18 @@
  * Authentication Context for managing user authentication state
  */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthContextType } from '../types/user';
+import type { User } from '@jackdo69/job-tracker-shared-types';
+
+// Frontend-specific auth context type
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, fullName?: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => void;
+}
 import { authApi, tokenManager } from '../services/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

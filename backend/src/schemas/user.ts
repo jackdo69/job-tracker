@@ -71,11 +71,9 @@ export const loginResponseSchema = z.object({
 });
 
 /**
- * TypeScript types from Zod schemas
+ * TypeScript types from Zod schemas (for internal use only)
+ * Use types from @jackdo69/job-tracker-shared-types for API contracts
  */
-export type UserCreate = z.infer<typeof userCreateSchema>;
 export type UserUpdate = z.infer<typeof userUpdateSchema>;
 export type UserResponse = z.infer<typeof userResponseSchema>;
 export type TokenData = z.infer<typeof tokenDataSchema>;
-export type LoginRequest = z.infer<typeof loginRequestSchema>;
-export type LoginResponse = z.infer<typeof loginResponseSchema>;

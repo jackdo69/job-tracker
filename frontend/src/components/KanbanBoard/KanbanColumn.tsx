@@ -3,7 +3,7 @@
  */
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { JobApplication, ApplicationStatus } from '../../types/job';
+import type { JobApplication, ApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 import { JobCard } from './JobCard';
 
 interface KanbanColumnProps {

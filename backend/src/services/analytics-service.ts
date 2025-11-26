@@ -4,12 +4,12 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import { jobApplications, type ApplicationStatus } from '../db/schema.js';
+import type { AnalyticsResponse } from '../schemas/analytics.js';
 import type {
-  AnalyticsResponse,
   ApplicationsByStatus,
   ApplicationsOverTime,
   AverageTimePerStage,
-} from '../schemas/analytics.js';
+} from '@jackdo69/job-tracker-shared-types';
 
 /**
  * Get analytics data for dashboard for a specific user

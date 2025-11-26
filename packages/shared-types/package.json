@@ -1,0 +1,45 @@
+{
+  "name": "@jackdo69/job-tracker-shared-types",
+  "version": "1.1.0",
+  "description": "Shared TypeScript types for Job Tracker application",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "watch": "tsc --watch",
+    "publish:type": "./npm_publish.sh"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "shared",
+    "job-tracker"
+  ],
+  "author": "jackdo69",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jackdo69/job-tracker.git",
+    "directory": "packages/shared-types"
+  }
+}

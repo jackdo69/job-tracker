@@ -3,7 +3,7 @@
  */
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { JobApplication } from '../../types/job';
+import type { JobApplication } from '@jackdo69/job-tracker-shared-types';
 import { format } from 'date-fns';
 
 interface JobCardProps {

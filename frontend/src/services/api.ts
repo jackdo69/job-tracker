@@ -7,9 +7,12 @@ import type {
   JobApplicationCreate,
   JobApplicationUpdate,
   JobApplicationMove,
-} from '../types/job';
-import type { AnalyticsData } from '../types/analytics';
-import type { User, LoginRequest, RegisterRequest, LoginResponse } from '../types/user';
+  AnalyticsData,
+  User,
+  LoginRequest,
+  RegisterRequest,
+  LoginResponse,
+} from '@jackdo69/job-tracker-shared-types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -92,21 +95,7 @@ export const jobApplicationsApi = {
    * Create new job application
    */
   create: async (data: JobApplicationCreate): Promise<JobApplication> => {
-    // Transform camelCase to snake_case for backend
-    const backendData = {
-      company_name: data.companyName,
-      position_title: data.positionTitle,
-      status: data.status,
-      interview_stage: data.interviewStage,
-      rejection_stage: data.rejectionStage,
-      application_date: data.applicationDate,
-      salary_range: data.salaryRange,
-      location: data.location,
-      notes: data.notes,
-      order_index: data.orderIndex,
-    };
-
-    const response = await api.post<JobApplication>('/applications', backendData);
+    const response = await api.post<JobApplication>('/applications', data);
     return response.data;
   },
 
@@ -117,20 +106,7 @@ export const jobApplicationsApi = {
     id: string,
     data: JobApplicationUpdate
   ): Promise<JobApplication> => {
-    // Transform camelCase to snake_case for backend
-    const backendData: any = {};
-    if (data.companyName !== undefined) backendData.company_name = data.companyName;
-    if (data.positionTitle !== undefined) backendData.position_title = data.positionTitle;
-    if (data.status !== undefined) backendData.status = data.status;
-    if (data.interviewStage !== undefined) backendData.interview_stage = data.interviewStage;
-    if (data.rejectionStage !== undefined) backendData.rejection_stage = data.rejectionStage;
-    if (data.applicationDate !== undefined) backendData.application_date = data.applicationDate;
-    if (data.salaryRange !== undefined) backendData.salary_range = data.salaryRange;
-    if (data.location !== undefined) backendData.location = data.location;
-    if (data.notes !== undefined) backendData.notes = data.notes;
-    if (data.orderIndex !== undefined) backendData.order_index = data.orderIndex;
-
-    const response = await api.put<JobApplication>(`/applications/${id}`, backendData);
+    const response = await api.put<JobApplication>(`/applications/${id}`, data);
     return response.data;
   },
 
@@ -145,17 +121,9 @@ export const jobApplicationsApi = {
    * Move job application to new status (for drag-drop)
    */
   move: async (id: string, data: JobApplicationMove): Promise<JobApplication> => {
-    // Transform camelCase to snake_case for backend
-    const backendData = {
-      status: data.status,
-      order_index: data.orderIndex,
-      interview_stage: data.interviewStage,
-      rejection_stage: data.rejectionStage,
-    };
-
     const response = await api.patch<JobApplication>(
       `/applications/${id}/move`,
-      backendData
+      data
     );
     return response.data;
   },

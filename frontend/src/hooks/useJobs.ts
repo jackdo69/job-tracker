@@ -6,7 +6,7 @@ import { jobApplicationsApi } from '../services/api';
 import type {
   JobApplicationUpdate,
   JobApplicationMove,
-} from '../types/job';
+} from '@jackdo69/job-tracker-shared-types';
 
 /**
  * Query key factory

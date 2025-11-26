@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.production
+
+# npm config (contains auth token, DO NOT commit!)
+.npmrc
