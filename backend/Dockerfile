@@ -11,7 +11,10 @@ ARG GITHUB_NPM_PUBLISH_TOKEN
 
 # Copy package files first for better caching
 COPY package*.json ./
-COPY .npmrc ./
+
+# Create .npmrc with the token (don't copy from source to avoid committing secrets)
+RUN echo "@jackdo69:registry=https://npm.pkg.github.com" > .npmrc && \
+    echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc
 
 # Install ALL dependencies (including devDependencies for TypeScript build)
 RUN npm ci

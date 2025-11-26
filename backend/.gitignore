@@ -15,8 +15,9 @@ dist/
 .env.local
 .env.*.local
 
-# npm config (safe to commit when using env var placeholders)
-# .npmrc - UNCOMMENTING to allow commit since it uses ${GITHUB_NPM_PUBLISH_TOKEN} placeholder
+# npm config
+# .npmrc is safe to commit when using ${GITHUB_NPM_PUBLISH_TOKEN} placeholder
+# Dockerfile creates its own .npmrc during build for Railway deployment
 
 # IDE
 .vscode/
