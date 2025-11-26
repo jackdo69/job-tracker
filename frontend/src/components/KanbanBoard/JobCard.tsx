@@ -86,7 +86,19 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
       )}
 
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-2 gap-2">
-        <span className="truncate">{format(new Date(job.application_date), 'MMM d, yyyy')}</span>
+        <span className="truncate">
+          {job.application_date
+            ? (() => {
+                try {
+                  const date = new Date(job.application_date);
+                  return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM d, yyyy');
+                } catch {
+                  return 'Invalid date';
+                }
+              })()
+            : 'No date'
+          }
+        </span>
         {job.salary_range && <span className="truncate flex-shrink-0">{job.salary_range}</span>}
       </div>
 

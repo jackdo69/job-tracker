@@ -65,13 +65,27 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate and format application date
+    let applicationDate: string;
+    try {
+      const date = new Date(formData.applicationDate);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date');
+      }
+      applicationDate = date.toISOString();
+    } catch (error) {
+      console.error('Invalid application date:', formData.applicationDate);
+      alert('Please provide a valid application date');
+      return;
+    }
+
     const data: JobApplicationCreate = {
       company_name: formData.companyName,
       position_title: formData.positionTitle,
       status: formData.status,
       interview_stage: formData.interviewStage || null,
       rejection_stage: formData.rejectionStage || null,
-      application_date: new Date(formData.applicationDate).toISOString(),
+      application_date: applicationDate,
       salary_range: formData.salaryRange || null,
       location: formData.location || null,
       notes: formData.notes || null,
