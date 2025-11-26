@@ -6,11 +6,18 @@ WORKDIR /app
 # Install PostgreSQL client for migrations
 RUN apk add --no-cache postgresql-client
 
+# Accept GitHub token as build argument
+ARG GITHUB_NPM_PUBLISH_TOKEN
+
 # Copy package files first for better caching
 COPY package*.json ./
+COPY .npmrc ./
 
 # Install ALL dependencies (including devDependencies for TypeScript build)
 RUN npm ci
+
+# Remove .npmrc to avoid exposing credentials in image
+RUN rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./

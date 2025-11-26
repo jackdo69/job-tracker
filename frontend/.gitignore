@@ -28,5 +28,5 @@ dist-ssr
 .env.local
 .env.production
 
-# npm config (contains auth token, DO NOT commit!)
-.npmrc
+# npm config (safe to commit when using env var placeholders)
+# .npmrc - UNCOMMENTING to allow commit since it uses ${GITHUB_NPM_PUBLISH_TOKEN} placeholder
