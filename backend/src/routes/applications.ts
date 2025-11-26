@@ -92,7 +92,7 @@ applications.post('/', zValidator('json', jobApplicationCreateSchema, (result, c
       data: applicationData
     }, 'Creating job application');
 
-    const app = await createApplication(applicationData, user.id);
+    const app = await createApplication(applicationData as any, user.id);
 
     logger.info({
       userId: user.id,
@@ -193,7 +193,7 @@ applications.put('/:id', zValidator('json', jobApplicationUpdateSchema, (result,
       data: applicationData
     }, 'Updating job application');
 
-    const updated = await updateApplication(applicationId, applicationData, user.id);
+    const updated = await updateApplication(applicationId, applicationData as any, user.id);
     if (!updated) {
       logger.warn({
         userId: user.id,
@@ -302,7 +302,7 @@ applications.patch('/:id/move', zValidator('json', jobApplicationMoveSchema, (re
       moveData
     }, 'Moving job application');
 
-    const moved = await moveApplication(applicationId, moveData, user.id);
+    const moved = await moveApplication(applicationId, moveData as any, user.id);
     if (!moved) {
       logger.warn({
         userId: user.id,

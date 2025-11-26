@@ -38,16 +38,16 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
   const jobsByStatus = {
     [ApplicationStatus.APPLIED]: jobs
       .filter((job) => job.status === ApplicationStatus.APPLIED)
-      .sort((a, b) => a.orderIndex - b.orderIndex),
+      .sort((a, b) => a.order_index - b.order_index),
     [ApplicationStatus.INTERVIEWING]: jobs
       .filter((job) => job.status === ApplicationStatus.INTERVIEWING)
-      .sort((a, b) => a.orderIndex - b.orderIndex),
+      .sort((a, b) => a.order_index - b.order_index),
     [ApplicationStatus.OFFER]: jobs
       .filter((job) => job.status === ApplicationStatus.OFFER)
-      .sort((a, b) => a.orderIndex - b.orderIndex),
+      .sort((a, b) => a.order_index - b.order_index),
     [ApplicationStatus.REJECTED]: jobs
       .filter((job) => job.status === ApplicationStatus.REJECTED)
-      .sort((a, b) => a.orderIndex - b.orderIndex),
+      .sort((a, b) => a.order_index - b.order_index),
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -79,26 +79,26 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
     let newOrderIndex = 0;
 
     if (overIndex !== -1) {
-      newOrderIndex = targetJobs[overIndex].orderIndex;
+      newOrderIndex = targetJobs[overIndex].order_index;
     } else if (targetJobs.length > 0) {
       // Dropped at the end of the column
-      newOrderIndex = Math.max(...targetJobs.map((j) => j.orderIndex)) + 1;
+      newOrderIndex = Math.max(...targetJobs.map((j) => j.order_index)) + 1;
     }
 
     // Only update if status or position changed
-    if (oldStatus !== overStatus || activeJob.orderIndex !== newOrderIndex) {
+    if (oldStatus !== overStatus || activeJob.order_index !== newOrderIndex) {
       moveJobMutation.mutate({
         id: activeJob.id,
         data: {
           status: overStatus,
-          orderIndex: newOrderIndex,
-          interviewStage:
+          order_index: newOrderIndex,
+          interview_stage:
             overStatus === ApplicationStatus.INTERVIEWING
-              ? activeJob.interviewStage || 'Initial'
+              ? activeJob.interview_stage || 'Initial'
               : null,
-          rejectionStage:
+          rejection_stage:
             overStatus === ApplicationStatus.REJECTED
-              ? activeJob.rejectionStage || 'Unknown'
+              ? activeJob.rejection_stage || 'Unknown'
               : null,
         },
       });

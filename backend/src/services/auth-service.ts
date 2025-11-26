@@ -29,7 +29,7 @@ export async function getUserById(userId: string): Promise<User | undefined> {
 /**
  * Register a new user
  */
-export async function registerUser(userData: RegisterRequest): Promise<UserResponse> {
+export async function registerUser(userData: RegisterRequest): Promise<any> {
   try {
     // Check if user already exists
     const existingUser = await getUserByEmail(userData.email);
@@ -53,10 +53,10 @@ export async function registerUser(userData: RegisterRequest): Promise<UserRespo
     return {
       id: newUser.id,
       email: newUser.email,
-      full_name: newUser.fullName,
+      fullName: newUser.fullName,
       isActive: newUser.isActive,
-      createdAt: newUser.createdAt,
-      updatedAt: newUser.updatedAt,
+      created_at: newUser.createdAt.toISOString(),
+      updated_at: newUser.updatedAt.toISOString(),
     };
   } catch (error) {
     if (error instanceof HTTPException) {
@@ -111,9 +111,9 @@ export async function authenticateUser(loginData: LoginRequest): Promise<LoginRe
       id: user.id,
       email: user.email,
       full_name: user.fullName,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      is_active: user.isActive,
+      created_at: user.createdAt.toISOString(),
+      updated_at: user.updatedAt.toISOString(),
     },
   };
 }
@@ -330,9 +330,9 @@ export async function handleGoogleCallback(
         id: user.id,
         email: user.email,
         full_name: user.fullName,
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        is_active: user.isActive,
+        created_at: user.createdAt.toISOString(),
+        updated_at: user.updatedAt.toISOString(),
       },
     };
   } catch (error) {

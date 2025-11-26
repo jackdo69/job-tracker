@@ -38,7 +38,7 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
     >
       <div className="flex justify-between items-start mb-2 gap-2">
         <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-white flex-1 min-w-0 break-words">
-          {job.positionTitle}
+          {job.position_title}
         </h3>
         <div className="flex gap-1 flex-shrink-0">
           <button
@@ -90,21 +90,21 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         </div>
       </div>
 
-      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.companyName}</p>
+      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.company_name}</p>
 
-      {job.interviewStage && (
-        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interviewStage}</p>
+      {job.interview_stage && (
+        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interview_stage}</p>
       )}
 
-      {job.rejectionStage && (
+      {job.rejection_stage && (
         <p className="text-xs text-red-600 dark:text-red-400 mb-1 truncate">
-          Rejected at: {job.rejectionStage}
+          Rejected at: {job.rejection_stage}
         </p>
       )}
 
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-2 gap-2">
-        <span className="truncate">{format(new Date(job.applicationDate), 'MMM d, yyyy')}</span>
-        {job.salaryRange && <span className="truncate flex-shrink-0">{job.salaryRange}</span>}
+        <span className="truncate">{format(new Date(job.application_date), 'MMM d, yyyy')}</span>
+        {job.salary_range && <span className="truncate flex-shrink-0">{job.salary_range}</span>}
       </div>
 
       {job.location && (

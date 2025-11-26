@@ -36,13 +36,13 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   useEffect(() => {
     if (job) {
       setFormData({
-        companyName: job.companyName,
-        positionTitle: job.positionTitle,
+        companyName: job.company_name,
+        positionTitle: job.position_title,
         status: job.status,
-        interviewStage: job.interviewStage || '',
-        rejectionStage: job.rejectionStage || '',
-        applicationDate: job.applicationDate.split('T')[0],
-        salaryRange: job.salaryRange || '',
+        interviewStage: job.interview_stage || '',
+        rejectionStage: job.rejection_stage || '',
+        applicationDate: job.application_date.split('T')[0],
+        salaryRange: job.salary_range || '',
         location: job.location || '',
         notes: job.notes || '',
       });
@@ -66,13 +66,13 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     e.preventDefault();
 
     const data: JobApplicationCreate = {
-      companyName: formData.companyName,
-      positionTitle: formData.positionTitle,
+      company_name: formData.companyName,
+      position_title: formData.positionTitle,
       status: formData.status,
-      interviewStage: formData.interviewStage || null,
-      rejectionStage: formData.rejectionStage || null,
-      applicationDate: new Date(formData.applicationDate).toISOString(),
-      salaryRange: formData.salaryRange || null,
+      interview_stage: formData.interviewStage || null,
+      rejection_stage: formData.rejectionStage || null,
+      application_date: new Date(formData.applicationDate).toISOString(),
+      salary_range: formData.salaryRange || null,
       location: formData.location || null,
       notes: formData.notes || null,
     };

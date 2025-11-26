@@ -9,6 +9,7 @@ import type {
   JobApplicationUpdate,
   JobApplicationMove,
 } from '@jackdo69/job-tracker-shared-types';
+import { ApplicationStatus as SharedApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 import { logger } from '../lib/logger.js';
 
 /**
@@ -58,14 +59,14 @@ export async function createApplication(
 
     // Transform snake_case to camelCase for Drizzle ORM
     // Ensure date is a proper Date object
-    const applicationDate = applicationData.application_date instanceof Date
-      ? applicationData.application_date
-      : new Date(applicationData.application_date);
+    const applicationDate = typeof applicationData.application_date === 'string'
+      ? new Date(applicationData.application_date)
+      : applicationData.application_date;
 
     const insertData = {
       companyName: applicationData.company_name,
       positionTitle: applicationData.position_title,
-      status: applicationData.status,
+      status: applicationData.status as ApplicationStatus,
       interviewStage: applicationData.interview_stage ?? null,
       rejectionStage: applicationData.rejection_stage ?? null,
       applicationDate,
@@ -115,10 +116,14 @@ export async function updateApplication(
   const updateData: Partial<JobApplication> = {};
   if (applicationData.company_name !== undefined) updateData.companyName = applicationData.company_name;
   if (applicationData.position_title !== undefined) updateData.positionTitle = applicationData.position_title;
-  if (applicationData.status !== undefined) updateData.status = applicationData.status;
+  if (applicationData.status !== undefined) updateData.status = applicationData.status as ApplicationStatus;
   if (applicationData.interview_stage !== undefined) updateData.interviewStage = applicationData.interview_stage;
   if (applicationData.rejection_stage !== undefined) updateData.rejectionStage = applicationData.rejection_stage;
-  if (applicationData.application_date !== undefined) updateData.applicationDate = applicationData.application_date;
+  if (applicationData.application_date !== undefined) {
+    updateData.applicationDate = typeof applicationData.application_date === 'string'
+      ? new Date(applicationData.application_date)
+      : applicationData.application_date;
+  }
   if (applicationData.salary_range !== undefined) updateData.salaryRange = applicationData.salary_range;
   if (applicationData.location !== undefined) updateData.location = applicationData.location;
   if (applicationData.notes !== undefined) updateData.notes = applicationData.notes;
@@ -170,7 +175,7 @@ export async function moveApplication(
 
   // Prepare update data (transform snake_case to camelCase)
   const updateData: Partial<JobApplication> = {
-    status: newStatus,
+    status: newStatus as ApplicationStatus,
     orderIndex: moveData.order_index,
   };
 
