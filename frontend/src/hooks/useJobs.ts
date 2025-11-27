@@ -108,7 +108,13 @@ export function useMoveJob() {
         if (!old) return old;
         return old.map((job: any) =>
           job.id === id
-            ? { ...job, status: data.status, orderIndex: data.orderIndex }
+            ? {
+                ...job,
+                status: data.status,
+                orderIndex: data.orderIndex,
+                interviewStage: data.interviewStage,
+                rejectionStage: data.rejectionStage,
+              }
             : job
         );
       });

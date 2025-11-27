@@ -94,11 +94,11 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
           orderIndex: newOrderIndex,
           interviewStage:
             overStatus === ApplicationStatus.INTERVIEWING
-              ? activeJob.interviewStage || 'Initial'
+              ? activeJob.interviewStage || null
               : null,
           rejectionStage:
             overStatus === ApplicationStatus.REJECTED
-              ? activeJob.rejectionStage || 'Unknown'
+              ? activeJob.rejectionStage || null
               : null,
         },
       });
