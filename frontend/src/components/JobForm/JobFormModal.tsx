@@ -35,13 +35,22 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   // Populate form when editing
   useEffect(() => {
     if (job) {
+      // Safely handle application_date which might be undefined or invalid
+      let dateValue: string;
+      try {
+        dateValue = job.application_date ? job.application_date.split('T')[0] : new Date().toISOString().split('T')[0];
+      } catch (error) {
+        console.error('Invalid application date format:', job.application_date);
+        dateValue = new Date().toISOString().split('T')[0];
+      }
+
       setFormData({
         companyName: job.company_name,
         positionTitle: job.position_title,
         status: job.status,
         interviewStage: job.interview_stage || '',
         rejectionStage: job.rejection_stage || '',
-        applicationDate: job.application_date.split('T')[0],
+        applicationDate: dateValue,
         salaryRange: job.salary_range || '',
         location: job.location || '',
         notes: job.notes || '',
