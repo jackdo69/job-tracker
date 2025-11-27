@@ -31,12 +31,12 @@ export interface AverageTimePerStage {
 
 /**
  * Complete analytics data
- * Uses snake_case to match API response format
+ * Uses camelCase for TypeScript/JavaScript conventions
  */
 export interface AnalyticsData {
-  total_applications: number;
-  by_status: ApplicationsByStatus;
-  applications_over_time: ApplicationsOverTime[];
-  average_time_per_stage: AverageTimePerStage;
-  success_rate: number;
+  totalApplications: number;
+  byStatus: ApplicationsByStatus;
+  applicationsOverTime: ApplicationsOverTime[];
+  averageTimePerStage: AverageTimePerStage;
+  successRate: number;
 }

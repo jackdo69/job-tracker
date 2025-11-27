@@ -115,7 +115,7 @@ auth.get('/google/callback', async (c) => {
     );
 
     // Redirect to frontend with token as query parameter
-    const redirectUrl = `${config.frontendUrl}/auth/google/callback?token=${response.access_token}`;
+    const redirectUrl = `${config.frontendUrl}/auth/google/callback?token=${response.accessToken}`;
     return c.redirect(redirectUrl);
   } catch (error) {
     if (error instanceof HTTPException) {

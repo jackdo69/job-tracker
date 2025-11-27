@@ -20,15 +20,15 @@ export function Dashboard() {
   }
 
   const statusData = [
-    { name: 'Applied', count: analytics.by_status.Applied },
-    { name: 'Interviewing', count: analytics.by_status.Interviewing },
-    { name: 'Offer', count: analytics.by_status.Offer },
-    { name: 'Rejected', count: analytics.by_status.Rejected },
+    { name: 'Applied', count: analytics.byStatus.Applied },
+    { name: 'Interviewing', count: analytics.byStatus.Interviewing },
+    { name: 'Offer', count: analytics.byStatus.Offer },
+    { name: 'Rejected', count: analytics.byStatus.Rejected },
   ];
 
   const averageTimeData = [
-    { name: 'Applied', days: analytics.average_time_per_stage.Applied },
-    { name: 'Interviewing', days: analytics.average_time_per_stage.Interviewing },
+    { name: 'Applied', days: analytics.averageTimePerStage.Applied },
+    { name: 'Interviewing', days: analytics.averageTimePerStage.Interviewing },
   ];
 
   return (
@@ -37,23 +37,23 @@ export function Dashboard() {
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1 sm:mb-2">Total Applications</h3>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{analytics.total_applications}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{analytics.totalApplications}</p>
         </div>
 
         <div className="bg-green-50 dark:bg-green-900/30 rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-xs sm:text-sm font-medium text-green-700 dark:text-green-400 mb-1 sm:mb-2">Offers</h3>
-          <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-300">{analytics.by_status.Offer}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-green-900 dark:text-green-300">{analytics.byStatus.Offer}</p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-400 mb-1 sm:mb-2">Interviewing</h3>
-          <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-300">{analytics.by_status.Interviewing}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-300">{analytics.byStatus.Interviewing}</p>
         </div>
 
         <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-400 mb-1 sm:mb-2">Success Rate</h3>
           <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-300">
-            {(analytics.success_rate * 100).toFixed(1)}%
+            {(analytics.successRate * 100).toFixed(1)}%
           </p>
         </div>
       </div>
@@ -120,13 +120,13 @@ export function Dashboard() {
       </div>
 
       {/* Applications Over Time */}
-      {analytics.applications_over_time.length > 0 && (
+      {analytics.applicationsOverTime.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
             Applications Over Time
           </h3>
           <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
-            <LineChart data={analytics.applications_over_time}>
+            <LineChart data={analytics.applicationsOverTime}>
               <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
               <XAxis
                 dataKey="date"

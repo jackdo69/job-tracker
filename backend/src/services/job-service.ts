@@ -55,22 +55,21 @@ export async function createApplication(
       .orderBy(desc(jobApplications.orderIndex))
       .limit(1);
 
-    const orderIndex = maxOrderResult.length > 0 ? (maxOrderResult[0].maxOrder ?? -1) + 1 : 0;
+    const orderIndex = applicationData.orderIndex ?? (maxOrderResult.length > 0 ? (maxOrderResult[0].maxOrder ?? -1) + 1 : 0);
 
-    // Transform snake_case to camelCase for Drizzle ORM
     // Ensure date is a proper Date object
-    const applicationDate = typeof applicationData.application_date === 'string'
-      ? new Date(applicationData.application_date)
-      : applicationData.application_date;
+    const applicationDate = typeof applicationData.applicationDate === 'string'
+      ? new Date(applicationData.applicationDate)
+      : applicationData.applicationDate;
 
     const insertData = {
-      companyName: applicationData.company_name,
-      positionTitle: applicationData.position_title,
+      companyName: applicationData.companyName,
+      positionTitle: applicationData.positionTitle,
       status: applicationData.status as ApplicationStatus,
-      interviewStage: applicationData.interview_stage ?? null,
-      rejectionStage: applicationData.rejection_stage ?? null,
+      interviewStage: applicationData.interviewStage ?? null,
+      rejectionStage: applicationData.rejectionStage ?? null,
       applicationDate,
-      salaryRange: applicationData.salary_range ?? null,
+      salaryRange: applicationData.salaryRange ?? null,
       location: applicationData.location ?? null,
       notes: applicationData.notes ?? null,
       userId,
@@ -84,7 +83,7 @@ export async function createApplication(
       .values(insertData)
       .returning();
 
-    return newApplication;
+    return newApplication as any;
   } catch (error) {
     logger.error({
       error: error instanceof Error ? {
@@ -112,22 +111,22 @@ export async function updateApplication(
     return undefined;
   }
 
-  // Transform snake_case to camelCase for Drizzle ORM
+  // Build update data (already in camelCase from shared types)
   const updateData: Partial<JobApplication> = {};
-  if (applicationData.company_name !== undefined) updateData.companyName = applicationData.company_name;
-  if (applicationData.position_title !== undefined) updateData.positionTitle = applicationData.position_title;
+  if (applicationData.companyName !== undefined) updateData.companyName = applicationData.companyName;
+  if (applicationData.positionTitle !== undefined) updateData.positionTitle = applicationData.positionTitle;
   if (applicationData.status !== undefined) updateData.status = applicationData.status as ApplicationStatus;
-  if (applicationData.interview_stage !== undefined) updateData.interviewStage = applicationData.interview_stage;
-  if (applicationData.rejection_stage !== undefined) updateData.rejectionStage = applicationData.rejection_stage;
-  if (applicationData.application_date !== undefined) {
-    updateData.applicationDate = typeof applicationData.application_date === 'string'
-      ? new Date(applicationData.application_date)
-      : applicationData.application_date;
+  if (applicationData.interviewStage !== undefined) updateData.interviewStage = applicationData.interviewStage;
+  if (applicationData.rejectionStage !== undefined) updateData.rejectionStage = applicationData.rejectionStage;
+  if (applicationData.applicationDate !== undefined) {
+    updateData.applicationDate = typeof applicationData.applicationDate === 'string'
+      ? new Date(applicationData.applicationDate)
+      : applicationData.applicationDate;
   }
-  if (applicationData.salary_range !== undefined) updateData.salaryRange = applicationData.salary_range;
+  if (applicationData.salaryRange !== undefined) updateData.salaryRange = applicationData.salaryRange;
   if (applicationData.location !== undefined) updateData.location = applicationData.location;
   if (applicationData.notes !== undefined) updateData.notes = applicationData.notes;
-  if (applicationData.order_index !== undefined) updateData.orderIndex = applicationData.order_index;
+  if (applicationData.orderIndex !== undefined) updateData.orderIndex = applicationData.orderIndex;
 
   const [updated] = await db
     .update(jobApplications)
@@ -135,7 +134,7 @@ export async function updateApplication(
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .returning();
 
-  return updated;
+  return updated as any;
 }
 
 /**
@@ -173,18 +172,18 @@ export async function moveApplication(
   const oldStatus = application.status;
   const newStatus = moveData.status;
 
-  // Prepare update data (transform snake_case to camelCase)
+  // Prepare update data (already in camelCase from shared types)
   const updateData: Partial<JobApplication> = {
     status: newStatus as ApplicationStatus,
-    orderIndex: moveData.order_index,
+    orderIndex: moveData.orderIndex,
   };
 
   // Update stage fields based on status
   if (newStatus === 'Interviewing') {
-    updateData.interviewStage = moveData.interview_stage ?? null;
+    updateData.interviewStage = moveData.interviewStage ?? null;
     updateData.rejectionStage = null;
   } else if (newStatus === 'Rejected') {
-    updateData.rejectionStage = moveData.rejection_stage ?? null;
+    updateData.rejectionStage = moveData.rejectionStage ?? null;
     updateData.interviewStage = null;
   } else {
     updateData.interviewStage = null;
@@ -201,7 +200,7 @@ export async function moveApplication(
         and(
           eq(jobApplications.userId, userId),
           eq(jobApplications.status, newStatus),
-          sql`${jobApplications.orderIndex} >= ${moveData.order_index}`,
+          sql`${jobApplications.orderIndex} >= ${moveData.orderIndex}`,
           sql`${jobApplications.id} != ${applicationId}`
         )
       );
@@ -221,7 +220,7 @@ export async function moveApplication(
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .returning();
 
-  return updated;
+  return updated as any;
 }
 
 /**

@@ -45,7 +45,7 @@ export async function registerUser(userData: RegisterRequest): Promise<any> {
         id: crypto.randomUUID(),
         email: userData.email,
         hashedPassword,
-        fullName: userData.full_name,
+        fullName: userData.fullName,
         isActive: true,
       })
       .returning();
@@ -55,8 +55,8 @@ export async function registerUser(userData: RegisterRequest): Promise<any> {
       email: newUser.email,
       fullName: newUser.fullName,
       isActive: newUser.isActive,
-      created_at: newUser.createdAt.toISOString(),
-      updated_at: newUser.updatedAt.toISOString(),
+      createdAt: newUser.createdAt.toISOString(),
+      updatedAt: newUser.updatedAt.toISOString(),
     };
   } catch (error) {
     if (error instanceof HTTPException) {
@@ -105,15 +105,15 @@ export async function authenticateUser(loginData: LoginRequest): Promise<LoginRe
   });
 
   return {
-    access_token: accessToken,
-    token_type: 'bearer',
+    accessToken: accessToken,
+    tokenType: 'bearer',
     user: {
       id: user.id,
       email: user.email,
-      full_name: user.fullName,
-      is_active: user.isActive,
-      created_at: user.createdAt.toISOString(),
-      updated_at: user.updatedAt.toISOString(),
+      fullName: user.fullName,
+      isActive: user.isActive,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
     },
   };
 }
@@ -324,15 +324,15 @@ export async function handleGoogleCallback(
     });
 
     return {
-      access_token: accessToken,
-      token_type: 'bearer',
+      accessToken: accessToken,
+      tokenType: 'bearer',
       user: {
         id: user.id,
         email: user.email,
-        full_name: user.fullName,
-        is_active: user.isActive,
-        created_at: user.createdAt.toISOString(),
-        updated_at: user.updatedAt.toISOString(),
+        fullName: user.fullName,
+        isActive: user.isActive,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
       },
     };
   } catch (error) {

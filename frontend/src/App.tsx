@@ -65,7 +65,7 @@ function MainApp() {
               </h1>
               {user && (
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1 truncate hidden sm:block">
-                  {user.full_name || user.email}
+                  {user.fullName || user.email}
                 </p>
               )}
             </div>

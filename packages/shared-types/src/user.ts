@@ -5,15 +5,15 @@
 
 /**
  * User entity (full representation from database)
- * Uses snake_case to match PostgreSQL conventions and API responses
+ * Uses camelCase for TypeScript/JavaScript conventions
  */
 export interface User {
   id: string;
   email: string;
-  full_name?: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  fullName?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
@@ -21,7 +21,7 @@ export interface User {
  */
 export interface UserCreate {
   email: string;
-  hashed_password: string;
-  full_name?: string | null;
-  is_active?: boolean;
+  hashedPassword: string;
+  fullName?: string | null;
+  isActive?: boolean;
 }

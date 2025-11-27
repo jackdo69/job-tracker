@@ -8,7 +8,7 @@ import { z } from 'zod';
  */
 export const userBaseSchema = z.object({
   email: z.string().email(),
-  fullName: z.string().optional().nullable(),
+  fullName: z.string().optional(),
 });
 
 /**
@@ -23,7 +23,7 @@ export const userCreateSchema = userBaseSchema.extend({
  */
 export const userUpdateSchema = z.object({
   email: z.string().email().optional(),
-  fullName: z.string().optional().nullable(),
+  fullName: z.string().optional(),
   password: z.string().min(8).optional(),
 });
 

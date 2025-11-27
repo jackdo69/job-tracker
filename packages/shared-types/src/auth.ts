@@ -19,16 +19,16 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  full_name?: string;
+  fullName?: string;
 }
 
 /**
  * Login/Register response
- * Uses snake_case to match API response format
+ * Uses camelCase for TypeScript/JavaScript conventions
  */
 export interface LoginResponse {
-  access_token: string;
-  token_type: string;
+  accessToken: string;
+  tokenType: string;
   user: User;
 }
 

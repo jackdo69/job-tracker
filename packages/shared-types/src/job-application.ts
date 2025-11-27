@@ -15,55 +15,55 @@ export enum ApplicationStatus {
 
 /**
  * Job application entity (full representation from database)
- * Uses snake_case to match PostgreSQL conventions and API responses
+ * Uses camelCase for TypeScript/JavaScript conventions
  */
 export interface JobApplication {
   id: string;
-  user_id: string;
-  company_name: string;
-  position_title: string;
+  userId: string;
+  companyName: string;
+  positionTitle: string;
   status: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index: number;
-  created_at: string;
-  updated_at: string;
+  orderIndex: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
  * Job application creation payload
  */
 export interface JobApplicationCreate {
-  company_name: string;
-  position_title: string;
+  companyName: string;
+  positionTitle: string;
   status: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index?: number;
+  orderIndex?: number;
 }
 
 /**
  * Job application update payload (all fields optional)
  */
 export interface JobApplicationUpdate {
-  company_name?: string;
-  position_title?: string;
+  companyName?: string;
+  positionTitle?: string;
   status?: ApplicationStatus;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
-  application_date?: string;
-  salary_range?: string | null;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
+  applicationDate?: string;
+  salaryRange?: string | null;
   location?: string | null;
   notes?: string | null;
-  order_index?: number;
+  orderIndex?: number;
 }
 
 /**
@@ -71,7 +71,7 @@ export interface JobApplicationUpdate {
  */
 export interface JobApplicationMove {
   status: ApplicationStatus;
-  order_index: number;
-  interview_stage?: string | null;
-  rejection_stage?: string | null;
+  orderIndex: number;
+  interviewStage?: string | null;
+  rejectionStage?: string | null;
 }

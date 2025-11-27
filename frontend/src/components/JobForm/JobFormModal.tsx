@@ -35,23 +35,23 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   // Populate form when editing
   useEffect(() => {
     if (job) {
-      // Safely handle application_date which might be undefined or invalid
+      // Safely handle applicationDate which might be undefined or invalid
       let dateValue: string;
       try {
-        dateValue = job.application_date ? job.application_date.split('T')[0] : new Date().toISOString().split('T')[0];
+        dateValue = job.applicationDate ? job.applicationDate.split('T')[0] : new Date().toISOString().split('T')[0];
       } catch (error) {
-        console.error('Invalid application date format:', job.application_date);
+        console.error('Invalid application date format:', job.applicationDate);
         dateValue = new Date().toISOString().split('T')[0];
       }
 
       setFormData({
-        companyName: job.company_name,
-        positionTitle: job.position_title,
+        companyName: job.companyName,
+        positionTitle: job.positionTitle,
         status: job.status,
-        interviewStage: job.interview_stage || '',
-        rejectionStage: job.rejection_stage || '',
+        interviewStage: job.interviewStage || '',
+        rejectionStage: job.rejectionStage || '',
         applicationDate: dateValue,
-        salaryRange: job.salary_range || '',
+        salaryRange: job.salaryRange || '',
         location: job.location || '',
         notes: job.notes || '',
       });
@@ -89,13 +89,13 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     }
 
     const data: JobApplicationCreate = {
-      company_name: formData.companyName,
-      position_title: formData.positionTitle,
+      companyName: formData.companyName,
+      positionTitle: formData.positionTitle,
       status: formData.status,
-      interview_stage: formData.interviewStage || null,
-      rejection_stage: formData.rejectionStage || null,
-      application_date: applicationDate,
-      salary_range: formData.salaryRange || null,
+      interviewStage: formData.interviewStage || null,
+      rejectionStage: formData.rejectionStage || null,
+      applicationDate: applicationDate,
+      salaryRange: formData.salaryRange || null,
       location: formData.location || null,
       notes: formData.notes || null,
     };

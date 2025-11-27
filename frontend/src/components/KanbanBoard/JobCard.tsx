@@ -45,7 +45,7 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
     >
       <div className="flex justify-between items-start mb-2 gap-2">
         <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-white flex-1 min-w-0 break-words">
-          {job.position_title}
+          {job.positionTitle}
         </h3>
         <button
           onClick={(e) => {
@@ -73,24 +73,24 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         </button>
       </div>
 
-      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.company_name}</p>
+      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.companyName}</p>
 
-      {job.interview_stage && (
-        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interview_stage}</p>
+      {job.interviewStage && (
+        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interviewStage}</p>
       )}
 
-      {job.rejection_stage && (
+      {job.rejectionStage && (
         <p className="text-xs text-red-600 dark:text-red-400 mb-1 truncate">
-          Rejected at: {job.rejection_stage}
+          Rejected at: {job.rejectionStage}
         </p>
       )}
 
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-2 gap-2">
         <span className="truncate">
-          {job.application_date
+          {job.applicationDate
             ? (() => {
                 try {
-                  const date = new Date(job.application_date);
+                  const date = new Date(job.applicationDate);
                   return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM d, yyyy');
                 } catch {
                   return 'Invalid date';
@@ -99,7 +99,7 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
             : 'No date'
           }
         </span>
-        {job.salary_range && <span className="truncate flex-shrink-0">{job.salary_range}</span>}
+        {job.salaryRange && <span className="truncate flex-shrink-0">{job.salaryRange}</span>}
       </div>
 
       {job.location && (

@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<void> => {
     const response = await authApi.login({ email, password });
-    tokenManager.setToken(response.access_token);
+    tokenManager.setToken(response.accessToken);
     setUser(response.user);
   };
 
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await authApi.register({
       email,
       password,
-      full_name: fullName,
+      fullName: fullName,
     });
 
     // Auto-login after registration
