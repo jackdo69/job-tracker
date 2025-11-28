@@ -37,6 +37,7 @@ export async function getAnalytics(userId: string): Promise<AnalyticsData> {
     Interviewing: 0,
     Offer: 0,
     Rejected: 0,
+    Cancelled: 0,
   };
 
   for (const row of statusCountsResult) {

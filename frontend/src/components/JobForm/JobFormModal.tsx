@@ -215,6 +215,7 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
                   </option>
                   <option value={ApplicationStatus.OFFER}>Offer</option>
                   <option value={ApplicationStatus.REJECTED}>Rejected</option>
+                  <option value={ApplicationStatus.CANCELLED}>Cancelled</option>
                 </select>
               </div>
 

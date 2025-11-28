@@ -11,6 +11,7 @@ export enum ApplicationStatus {
   INTERVIEWING = 'Interviewing',
   OFFER = 'Offer',
   REJECTED = 'Rejected',
+  CANCELLED = 'Cancelled',
 }
 
 /**

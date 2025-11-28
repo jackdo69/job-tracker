@@ -34,6 +34,11 @@ const statusConfig = {
     color: 'bg-red-100 dark:bg-red-900/30',
     borderColor: 'border-red-300 dark:border-red-700',
   },
+  Cancelled: {
+    title: 'Cancelled',
+    color: 'bg-yellow-100 dark:bg-yellow-900/30',
+    borderColor: 'border-yellow-300 dark:border-yellow-700',
+  },
 };
 
 export function KanbanColumn({ status, jobs, onEdit, onDelete }: KanbanColumnProps) {

@@ -48,6 +48,9 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
     [ApplicationStatus.REJECTED]: jobs
       .filter((job) => job.status === ApplicationStatus.REJECTED)
       .sort((a, b) => a.orderIndex - b.orderIndex),
+    [ApplicationStatus.CANCELLED]: jobs
+      .filter((job) => job.status === ApplicationStatus.CANCELLED)
+      .sort((a, b) => a.orderIndex - b.orderIndex),
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -146,6 +149,12 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
         <KanbanColumn
           status={ApplicationStatus.REJECTED}
           jobs={jobsByStatus[ApplicationStatus.REJECTED]}
+          onEdit={onEdit}
+          onDelete={handleDelete}
+        />
+        <KanbanColumn
+          status={ApplicationStatus.CANCELLED}
+          jobs={jobsByStatus[ApplicationStatus.CANCELLED]}
           onEdit={onEdit}
           onDelete={handleDelete}
         />

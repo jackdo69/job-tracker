@@ -11,6 +11,7 @@ export interface ApplicationsByStatus {
   Interviewing: number;
   Offer: number;
   Rejected: number;
+  Cancelled: number;
 }
 
 /**
