@@ -13,16 +13,16 @@ export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer
  * Base job application schema
  */
 export const jobApplicationBaseSchema = z.object({
-  company_name: z.string().min(1).max(255),
-  position_title: z.string().min(1).max(255),
+  companyName: z.string().min(1).max(255),
+  positionTitle: z.string().min(1).max(255),
   status: applicationStatusSchema.default('Applied'),
-  interview_stage: z.string().max(100).optional().nullable(),
-  rejection_stage: z.string().max(100).optional().nullable(),
-  application_date: z.coerce.date(),
-  salary_range: z.string().max(100).optional().nullable(),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
+  applicationDate: z.coerce.date(),
+  salaryRange: z.string().max(100).optional().nullable(),
   location: z.string().max(255).optional().nullable(),
   notes: z.string().optional().nullable(),
-  order_index: z.number().int().min(0).default(0),
+  orderIndex: z.number().int().min(0).default(0),
 });
 
 /**
@@ -34,16 +34,16 @@ export const jobApplicationCreateSchema = jobApplicationBaseSchema;
  * Schema for updating a job application
  */
 export const jobApplicationUpdateSchema = z.object({
-  company_name: z.string().min(1).max(255).optional(),
-  position_title: z.string().min(1).max(255).optional(),
+  companyName: z.string().min(1).max(255).optional(),
+  positionTitle: z.string().min(1).max(255).optional(),
   status: applicationStatusSchema.optional(),
-  interview_stage: z.string().max(100).optional().nullable(),
-  rejection_stage: z.string().max(100).optional().nullable(),
-  application_date: z.coerce.date().optional(),
-  salary_range: z.string().max(100).optional().nullable(),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
+  applicationDate: z.coerce.date().optional(),
+  salaryRange: z.string().max(100).optional().nullable(),
   location: z.string().max(255).optional().nullable(),
   notes: z.string().optional().nullable(),
-  order_index: z.number().int().min(0).optional(),
+  orderIndex: z.number().int().min(0).optional(),
 });
 
 /**
@@ -51,9 +51,9 @@ export const jobApplicationUpdateSchema = z.object({
  */
 export const jobApplicationMoveSchema = z.object({
   status: applicationStatusSchema,
-  order_index: z.number().int().min(0),
-  interview_stage: z.string().max(100).optional().nullable(),
-  rejection_stage: z.string().max(100).optional().nullable(),
+  orderIndex: z.number().int().min(0),
+  interviewStage: z.string().max(100).optional().nullable(),
+  rejectionStage: z.string().max(100).optional().nullable(),
 });
 
 /**
@@ -61,9 +61,9 @@ export const jobApplicationMoveSchema = z.object({
  */
 export const jobApplicationResponseSchema = jobApplicationBaseSchema.extend({
   id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  created_at: z.date(),
-  updated_at: z.date(),
+  userId: z.string().uuid(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 /**
