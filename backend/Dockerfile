@@ -2,16 +2,22 @@
 # Backend Dockerfile for Node.js/TypeScript
 FROM node:22-alpine AS build
 
+# Declare build argument for GitHub token
+ARG GITHUB_NPM_PUBLISH_TOKEN
+
 WORKDIR /app
 
 # Install PostgreSQL client for migrations
 RUN apk add --no-cache postgresql-client
 
-# Copy package files
+# Copy package files and .npmrc
 COPY package.json package-lock.json ./
+COPY .npmrc .npmrc
 
-# Run npm install
-RUN npm ci
+# Append auth token to .npmrc and run npm install
+RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc && \
+    npm ci && \
+    rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./

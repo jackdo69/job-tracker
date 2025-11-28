@@ -25,6 +25,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        GITHUB_NPM_PUBLISH_TOKEN: ${GITHUB_NPM_PUBLISH_TOKEN}
     container_name: job-tracker-backend
     restart: unless-stopped
     environment:
