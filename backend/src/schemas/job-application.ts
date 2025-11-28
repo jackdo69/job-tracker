@@ -2,7 +2,6 @@
  * Zod schemas for job application validation
  */
 import { z } from 'zod';
-import type { ApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 
 /**
  * Application status enum
