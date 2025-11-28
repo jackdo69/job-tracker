@@ -27,6 +27,20 @@ export const users = pgTable('users', {
 });
 
 /**
+ * Companies table
+ */
+export const companies = pgTable('companies', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  logo: text('logo'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
+/**
  * Job applications table
  */
 export const jobApplications = pgTable('job_applications', {
@@ -34,6 +48,8 @@ export const jobApplications = pgTable('job_applications', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  companyId: uuid('company_id')
+    .references(() => companies.id, { onDelete: 'set null' }),
   companyName: varchar('company_name', { length: 255 }).notNull(),
   positionTitle: varchar('position_title', { length: 255 }).notNull(),
   status: applicationStatusEnum('status').notNull().default('Applied'),
@@ -53,6 +69,9 @@ export const jobApplications = pgTable('job_applications', {
  */
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export type Company = typeof companies.$inferSelect;
+export type NewCompany = typeof companies.$inferInsert;
 
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type NewJobApplication = typeof jobApplications.$inferInsert;
