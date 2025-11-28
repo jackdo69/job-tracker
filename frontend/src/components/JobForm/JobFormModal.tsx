@@ -71,6 +71,23 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     }
   }, [job]);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
