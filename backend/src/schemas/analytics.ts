@@ -33,11 +33,11 @@ export const averageTimePerStageSchema = z.object({
  * Analytics dashboard response
  */
 export const analyticsResponseSchema = z.object({
-  total_applications: z.number().int(),
-  by_status: applicationsByStatusSchema,
-  applications_over_time: z.array(applicationsOverTimeSchema),
-  average_time_per_stage: averageTimePerStageSchema,
-  success_rate: z.number(), // Offers / Total applications
+  totalApplications: z.number().int(),
+  byStatus: applicationsByStatusSchema,
+  applicationsOverTime: z.array(applicationsOverTimeSchema),
+  averageTimePerStage: averageTimePerStageSchema,
+  successRate: z.number(), // Offers / Total applications
 });
 
 /**

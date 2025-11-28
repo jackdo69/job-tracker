@@ -5,7 +5,7 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 export function Dashboard() {
-  const { data: analytics, isLoading } = useAnalytics();
+  const { data: analytics, isLoading, isError, error } = useAnalytics();
 
   if (isLoading) {
     return (
@@ -15,8 +15,27 @@ export function Dashboard() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-500 dark:text-red-400 text-lg font-semibold mb-2">
+            Failed to load analytics
+          </div>
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            {error instanceof Error ? error.message : 'An error occurred while fetching analytics data'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!analytics) {
-    return null;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500 dark:text-gray-400">No analytics data available</div>
+      </div>
+    );
   }
 
   const statusData = [

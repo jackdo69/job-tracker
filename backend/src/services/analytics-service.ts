@@ -4,8 +4,8 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import { jobApplications, type ApplicationStatus } from '../db/schema.js';
-import type { AnalyticsResponse } from '../schemas/analytics.js';
 import type {
+  AnalyticsData,
   ApplicationsByStatus,
   ApplicationsOverTime,
   AverageTimePerStage,
@@ -14,7 +14,7 @@ import type {
 /**
  * Get analytics data for dashboard for a specific user
  */
-export async function getAnalytics(userId: string): Promise<AnalyticsResponse> {
+export async function getAnalytics(userId: string): Promise<AnalyticsData> {
   // Total applications for user
   const totalResult = await db
     .select({ count: sql<number>`count(*)` })
@@ -66,11 +66,11 @@ export async function getAnalytics(userId: string): Promise<AnalyticsResponse> {
   const successRate = total > 0 ? byStatus.Offer / total : 0.0;
 
   return {
-    total_applications: total,
-    by_status: byStatus,
-    applications_over_time: applicationsOverTime,
-    average_time_per_stage: avgTime,
-    success_rate: Math.round(successRate * 1000) / 1000, // Round to 3 decimal places
+    totalApplications: total,
+    byStatus: byStatus,
+    applicationsOverTime: applicationsOverTime,
+    averageTimePerStage: avgTime,
+    successRate: Math.round(successRate * 1000) / 1000, // Round to 3 decimal places
   };
 }
 
