@@ -23,7 +23,7 @@ COPY .npmrc .npmrc
 RUN npm ci
 
 # Remove the .npmrc file for security, once packages are installed
-RUN rm -f .npmrc
+# RUN rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./
