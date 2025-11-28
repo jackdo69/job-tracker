@@ -4,10 +4,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "backend/Dockerfile"
 dockerContext = "backend"
 
-# Pass environment variables as Docker build arguments
-[build.buildArgs]
-GITHUB_NPM_PUBLISH_TOKEN = "${GITHUB_NPM_PUBLISH_TOKEN}"
-
 [deploy]
 restartPolicyMaxRetries = 10
 restartPolicyType = "on_failure"
@@ -20,7 +16,6 @@ healthcheckTimeout = 100
 [env]
 # Railway will provide PORT automatically (typically 8080)
 # Add your other environment variables in Railway dashboard:
-# - GITHUB_NPM_PUBLISH_TOKEN (required) - GitHub Personal Access Token for @jackdo69 packages
 # - DATABASE_URL (required) - Supabase PostgreSQL connection string
 # - SECRET_KEY (required) - JWT signing key
 # - CORS_ORIGINS (required) - e.g., https://your-app.vercel.app
