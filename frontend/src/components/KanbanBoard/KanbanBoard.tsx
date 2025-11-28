@@ -126,8 +126,8 @@ export function KanbanBoard({ onEdit }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Desktop: Horizontal Scroll | Mobile: Vertical Stack */}
-      <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:overflow-x-auto pb-4">
+      {/* Desktop: All columns visible | Mobile: Vertical Stack */}
+      <div className="flex flex-col md:flex-row gap-3 md:gap-2 lg:gap-3 pb-4">
         <KanbanColumn
           status={ApplicationStatus.APPLIED}
           jobs={jobsByStatus[ApplicationStatus.APPLIED]}
