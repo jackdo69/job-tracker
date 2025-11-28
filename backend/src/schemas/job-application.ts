@@ -7,7 +7,7 @@ import type { ApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 /**
  * Application status enum
  */
-export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer', 'Rejected']);
+export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer', 'Rejected', 'Cancelled']);
 
 /**
  * Base job application schema
