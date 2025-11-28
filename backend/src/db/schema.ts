@@ -11,6 +11,7 @@ export const applicationStatusEnum = pgEnum('status_enum', [
   'Interviewing',
   'Offer',
   'Rejected',
+  'Cancelled',
 ]);
 
 /**
@@ -57,4 +58,4 @@ export type NewUser = typeof users.$inferInsert;
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type NewJobApplication = typeof jobApplications.$inferInsert;
 
-export type ApplicationStatus = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+export type ApplicationStatus = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected' | 'Cancelled';
