@@ -20,3 +20,4 @@ Thumbs.db
 *.tar
 
 .instructions.md
+node_modules/
