@@ -16,7 +16,9 @@
       "Bash(npm uninstall:*)",
       "Bash(test:*)",
       "Bash(readlink:*)",
-      "Bash([ -f package.json ])"
+      "Bash([ -f package.json ])",
+      "Bash(npm view:*)",
+      "Bash(source ~/.zshrc)"
     ],
     "deny": [],
     "ask": []
