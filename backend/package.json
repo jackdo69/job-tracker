@@ -20,7 +20,7 @@
   "dependencies": {
     "@hono/node-server": "^1.19.6",
     "@hono/zod-validator": "^0.7.5",
-    "@jackdo69/job-tracker-shared-types": "^2.1.0",
+    "@jackdo69/job-tracker-shared-types": "file:../packages/shared-types",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.7",

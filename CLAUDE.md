@@ -395,3 +395,5 @@ This project demonstrates:
 
 **Important:** Do not run sub-tasks in background terminal unless explicitly requested.
 - all the git actions will be done by me manually
+- do not do npm link locally
+- do not use local file reference

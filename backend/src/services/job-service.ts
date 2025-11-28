@@ -9,7 +9,6 @@ import type {
   JobApplicationUpdate,
   JobApplicationMove,
 } from '@jackdo69/job-tracker-shared-types';
-import { ApplicationStatus as SharedApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 import { logger } from '../lib/logger.js';
 
 /**
