@@ -3,6 +3,8 @@
  * Used by both frontend and backend
  */
 
+import type { Company } from './company.js';
+
 /**
  * Application status enum
  */
@@ -21,6 +23,7 @@ export enum ApplicationStatus {
 export interface JobApplication {
   id: string;
   userId: string;
+  companyId: string | null;
   companyName: string;
   positionTitle: string;
   status: ApplicationStatus;
@@ -33,12 +36,14 @@ export interface JobApplication {
   orderIndex: number;
   createdAt: string;
   updatedAt: string;
+  company?: Company | null;
 }
 
 /**
  * Job application creation payload
  */
 export interface JobApplicationCreate {
+  companyId?: string | null;
   companyName: string;
   positionTitle: string;
   status: ApplicationStatus;
@@ -55,6 +60,7 @@ export interface JobApplicationCreate {
  * Job application update payload (all fields optional)
  */
 export interface JobApplicationUpdate {
+  companyId?: string | null;
   companyName?: string;
   positionTitle?: string;
   status?: ApplicationStatus;

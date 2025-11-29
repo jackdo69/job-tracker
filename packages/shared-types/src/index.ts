@@ -3,6 +3,13 @@
  * Centralized type definitions for frontend and backend
  */
 
+// Company types
+export {
+  type Company,
+  type CompanyCreate,
+  type CompanyUpdate,
+} from './company.js';
+
 // Job Application types
 export {
   ApplicationStatus,
