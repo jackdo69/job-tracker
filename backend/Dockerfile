@@ -18,6 +18,7 @@ COPY .npmrc .npmrc
 # RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc && \
 #     npm ci && \
 #     rm -f .npmrc
+RUN npm ci
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./
