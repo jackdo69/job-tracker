@@ -19,7 +19,13 @@
       "Bash([ -f package.json ])",
       "Bash(npm view:*)",
       "Bash(source ~/.zshrc)",
-      "Bash(xargs dirname:*)"
+      "Bash(xargs dirname:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)",
+      "Bash(tee:*)",
+      "Bash(chmod:*)",
+      "Bash(/tmp/test_companies.sh)",
+      "Bash(/tmp/test_image_upload.sh)"
     ],
     "deny": [],
     "ask": []
