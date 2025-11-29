@@ -185,6 +185,14 @@ export const authApi = {
     const response = await api.get<LoginResponse>(`/auth/google/callback?code=${code}`);
     return response.data;
   },
+
+  /**
+   * Exchange OAuth code for access token
+   */
+  exchangeOAuthCode: async (code: string): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>('/auth/google/exchange', { code });
+    return response.data;
+  },
 };
 
 export default api;
