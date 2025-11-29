@@ -15,9 +15,9 @@ COPY package.json package-lock.json ./
 COPY .npmrc .npmrc
 
 # Append auth token to .npmrc and run npm install
-RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc && \
-    npm ci && \
-    rm -f .npmrc
+# RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_NPM_PUBLISH_TOKEN}" >> .npmrc && \
+#     npm ci && \
+#     rm -f .npmrc
 
 # Copy TypeScript source and config
 COPY tsconfig.json ./
