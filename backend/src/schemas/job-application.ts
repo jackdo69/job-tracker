@@ -2,11 +2,12 @@
  * Zod schemas for job application validation
  */
 import { z } from 'zod';
+import { ApplicationStatus } from '@jackdo69/job-tracker-shared-types';
 
 /**
  * Application status enum
  */
-export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer', 'Rejected', 'Cancelled']);
+export const applicationStatusSchema = z.nativeEnum(ApplicationStatus);
 
 /**
  * Base job application schema
@@ -14,10 +15,10 @@ export const applicationStatusSchema = z.enum(['Applied', 'Interviewing', 'Offer
 export const jobApplicationBaseSchema = z.object({
   companyName: z.string().min(1).max(255),
   positionTitle: z.string().min(1).max(255),
-  status: applicationStatusSchema.default('Applied'),
+  status: applicationStatusSchema.default(ApplicationStatus.APPLIED),
   interviewStage: z.string().max(100).optional().nullable(),
   rejectionStage: z.string().max(100).optional().nullable(),
-  applicationDate: z.coerce.date(),
+  applicationDate: z.string(),
   salaryRange: z.string().max(100).optional().nullable(),
   location: z.string().max(255).optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -38,7 +39,7 @@ export const jobApplicationUpdateSchema = z.object({
   status: applicationStatusSchema.optional(),
   interviewStage: z.string().max(100).optional().nullable(),
   rejectionStage: z.string().max(100).optional().nullable(),
-  applicationDate: z.coerce.date().optional(),
+  applicationDate: z.string().optional(),
   salaryRange: z.string().max(100).optional().nullable(),
   location: z.string().max(255).optional().nullable(),
   notes: z.string().optional().nullable(),

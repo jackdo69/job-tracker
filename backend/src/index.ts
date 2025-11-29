@@ -118,36 +118,40 @@ serve(
 );
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   logger.warn('='.repeat(60));
   logger.warn('⚠️  SIGTERM signal received: initiating graceful shutdown');
   logger.warn('='.repeat(60));
 
-  try {
-    logger.info('Closing database connections...');
-    await sql.end();
-    logger.info('✅ Database connections closed successfully');
-    logger.info('👋 Shutdown complete');
-    process.exit(0);
-  } catch (error) {
-    logger.error({ err: error }, '❌ Error during shutdown');
-    process.exit(1);
-  }
+  void (async () => {
+    try {
+      logger.info('Closing database connections...');
+      await sql.end();
+      logger.info('✅ Database connections closed successfully');
+      logger.info('👋 Shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      logger.error({ err: error }, '❌ Error during shutdown');
+      process.exit(1);
+    }
+  })();
 });
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   logger.warn('='.repeat(60));
   logger.warn('⚠️  SIGINT signal received: initiating graceful shutdown');
   logger.warn('='.repeat(60));
 
-  try {
-    logger.info('Closing database connections...');
-    await sql.end();
-    logger.info('✅ Database connections closed successfully');
-    logger.info('👋 Shutdown complete');
-    process.exit(0);
-  } catch (error) {
-    logger.error({ err: error }, '❌ Error during shutdown');
-    process.exit(1);
-  }
+  void (async () => {
+    try {
+      logger.info('Closing database connections...');
+      await sql.end();
+      logger.info('✅ Database connections closed successfully');
+      logger.info('👋 Shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      logger.error({ err: error }, '❌ Error during shutdown');
+      process.exit(1);
+    }
+  })();
 });

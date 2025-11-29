@@ -52,7 +52,7 @@ auth.post('/login', zValidator('json', loginRequestSchema), async (c) => {
  * Get current authenticated user information
  * GET /auth/me
  */
-auth.get('/me', authMiddleware, async (c: Context<AuthContext>) => {
+auth.get('/me', authMiddleware, (c: Context<AuthContext>) => {
   const user = c.get('user');
 
   return c.json({

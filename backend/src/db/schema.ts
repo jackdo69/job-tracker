@@ -1,7 +1,7 @@
 /**
  * Database schema definitions using Drizzle ORM
  */
-import { pgTable, uuid, varchar, text, timestamp, boolean, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, boolean, integer, pgEnum, index } from 'drizzle-orm/pg-core';
 
 /**
  * Application status enum
@@ -28,6 +28,22 @@ export const users = pgTable('users', {
 });
 
 /**
+ * Companies table
+ */
+export const companies = pgTable('companies', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  logo: varchar('logo', { length: 255 }),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => ({
+  userIdIdx: index('companies_user_id_idx').on(table.userId),
+}));
+
+/**
  * Job applications table
  */
 export const jobApplications = pgTable('job_applications', {
@@ -35,6 +51,8 @@ export const jobApplications = pgTable('job_applications', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  companyId: uuid('company_id')
+    .references(() => companies.id, { onDelete: 'set null' }),
   companyName: varchar('company_name', { length: 255 }).notNull(),
   positionTitle: varchar('position_title', { length: 255 }).notNull(),
   status: applicationStatusEnum('status').notNull().default('Applied'),
@@ -47,13 +65,18 @@ export const jobApplications = pgTable('job_applications', {
   orderIndex: integer('order_index').notNull().default(0),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+}, (table) => ({
+  companyIdIdx: index('job_applications_company_id_idx').on(table.companyId),
+}));
 
 /**
  * TypeScript types inferred from schema
  */
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export type Company = typeof companies.$inferSelect;
+export type NewCompany = typeof companies.$inferInsert;
 
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type NewJobApplication = typeof jobApplications.$inferInsert;

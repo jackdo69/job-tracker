@@ -9,6 +9,7 @@ import type {
   JobApplicationUpdate,
   JobApplicationMove,
 } from '@jackdo69/job-tracker-shared-types';
+import { ApplicationStatus as ApplicationStatusEnum } from '@jackdo69/job-tracker-shared-types';
 import { logger } from '../lib/logger.js';
 
 /**
@@ -82,7 +83,7 @@ export async function createApplication(
       .values(insertData)
       .returning();
 
-    return newApplication as any;
+    return newApplication;
   } catch (error) {
     logger.error({
       error: error instanceof Error ? {
@@ -133,7 +134,7 @@ export async function updateApplication(
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .returning();
 
-  return updated as any;
+  return updated;
 }
 
 /**
@@ -169,19 +170,19 @@ export async function moveApplication(
   }
 
   const oldStatus = application.status;
-  const newStatus = moveData.status;
+  const newStatus = moveData.status as ApplicationStatus;
 
   // Prepare update data (already in camelCase from shared types)
   const updateData: Partial<JobApplication> = {
-    status: newStatus as ApplicationStatus,
+    status: newStatus,
     orderIndex: moveData.orderIndex,
   };
 
   // Update stage fields based on status
-  if (newStatus === 'Interviewing') {
+  if (newStatus === ApplicationStatusEnum.INTERVIEWING) {
     updateData.interviewStage = moveData.interviewStage ?? null;
     updateData.rejectionStage = null;
-  } else if (newStatus === 'Rejected') {
+  } else if (newStatus === ApplicationStatusEnum.REJECTED) {
     updateData.rejectionStage = moveData.rejectionStage ?? null;
     updateData.interviewStage = null;
   } else {
@@ -219,7 +220,7 @@ export async function moveApplication(
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .returning();
 
-  return updated as any;
+  return updated;
 }
 
 /**

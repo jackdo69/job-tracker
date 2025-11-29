@@ -29,7 +29,7 @@ export async function getUserById(userId: string): Promise<User | undefined> {
 /**
  * Register a new user
  */
-export async function registerUser(userData: RegisterRequest): Promise<any> {
+export async function registerUser(userData: RegisterRequest): Promise<UserResponse> {
   try {
     // Check if user already exists
     const existingUser = await getUserByEmail(userData.email);
@@ -53,10 +53,10 @@ export async function registerUser(userData: RegisterRequest): Promise<any> {
     return {
       id: newUser.id,
       email: newUser.email,
-      fullName: newUser.fullName,
+      fullName: newUser.fullName ?? undefined,
       isActive: newUser.isActive,
-      createdAt: newUser.createdAt.toISOString(),
-      updatedAt: newUser.updatedAt.toISOString(),
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
     };
   } catch (error) {
     if (error instanceof HTTPException) {
@@ -199,7 +199,7 @@ async function getGoogleTokens(
       // Parse the error to provide a better message
       let errorMessage = 'Failed to exchange authorization code';
       try {
-        const errorJson = JSON.parse(errorBody);
+        const errorJson = JSON.parse(errorBody) as { error_description?: string; error?: string };
         if (errorJson.error_description) {
           errorMessage = errorJson.error_description;
         } else if (errorJson.error) {

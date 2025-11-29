@@ -38,7 +38,7 @@ const runMigrations = async () => {
   logger.info('='.repeat(60));
 };
 
-runMigrations().catch((err) => {
+runMigrations().catch((err: unknown) => {
   logger.error({ err }, '❌ Migration failed!');
   logger.error('Please check your database connection and migration files');
   process.exit(1);

@@ -32,6 +32,7 @@ export default [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/no-unsafe-enum-comparison': 'off',
       'no-console': 'off',
       'no-debugger': 'error',
     },

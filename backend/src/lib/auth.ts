@@ -29,7 +29,7 @@ export async function getPasswordHash(password: string): Promise<string> {
  * Create a JWT access token
  */
 export function createAccessToken(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   expiresInMinutes?: number
 ): string {
   const expiresIn = expiresInMinutes || ACCESS_TOKEN_EXPIRE_MINUTES;
@@ -46,11 +46,11 @@ export function createAccessToken(
 /**
  * Decode and validate a JWT access token
  */
-export function decodeAccessToken(token: string): Record<string, any> | null {
+export function decodeAccessToken(token: string): Record<string, unknown> | null {
   try {
     const decoded = jwt.verify(token, SECRET_KEY, { algorithms: [ALGORITHM] });
-    return decoded as Record<string, any>;
-  } catch (error) {
+    return decoded as Record<string, unknown>;
+  } catch (_error) {
     return null;
   }
 }

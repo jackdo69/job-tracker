@@ -18,7 +18,8 @@
       "Bash(readlink:*)",
       "Bash([ -f package.json ])",
       "Bash(npm view:*)",
-      "Bash(source ~/.zshrc)"
+      "Bash(source ~/.zshrc)",
+      "Bash(xargs dirname:*)"
     ],
     "deny": [],
     "ask": []

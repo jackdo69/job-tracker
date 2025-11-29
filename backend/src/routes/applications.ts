@@ -4,7 +4,6 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { HTTPException } from 'hono/http-exception';
-import { ZodError } from 'zod';
 import { authMiddleware, type AuthContext } from '../middleware/auth.js';
 import {
   getAllApplications,
@@ -64,25 +63,7 @@ applications.get('/', async (c) => {
  * Create a new job application for the current user
  * POST /applications
  */
-applications.post('/', zValidator('json', jobApplicationCreateSchema, (result, c) => {
-  if (!result.success) {
-    logger.error({
-      error: result.error,
-      issues: result.error.issues,
-      path: '/applications',
-      method: 'POST'
-    }, 'Validation failed for create application');
-
-    return c.json({
-      error: 'Validation failed',
-      details: result.error.issues.map(issue => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-        code: issue.code
-      }))
-    }, 400);
-  }
-}), async (c) => {
+applications.post('/', zValidator('json', jobApplicationCreateSchema), async (c) => {
   const user = c.get('user');
   const applicationData = c.req.valid('json');
 
@@ -92,7 +73,7 @@ applications.post('/', zValidator('json', jobApplicationCreateSchema, (result, c
       data: applicationData
     }, 'Creating job application');
 
-    const app = await createApplication(applicationData as any, user.id);
+    const app = await createApplication(applicationData, user.id);
 
     logger.info({
       userId: user.id,
@@ -163,25 +144,7 @@ applications.get('/:id', async (c) => {
  * Update a job application for the current user
  * PUT /applications/:id
  */
-applications.put('/:id', zValidator('json', jobApplicationUpdateSchema, (result, c) => {
-  if (!result.success) {
-    logger.error({
-      error: result.error,
-      issues: result.error.issues,
-      path: '/applications/:id',
-      method: 'PUT'
-    }, 'Validation failed for update application');
-
-    return c.json({
-      error: 'Validation failed',
-      details: result.error.issues.map(issue => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-        code: issue.code
-      }))
-    }, 400);
-  }
-}), async (c) => {
+applications.put('/:id', zValidator('json', jobApplicationUpdateSchema), async (c) => {
   const user = c.get('user');
   const applicationId = c.req.param('id');
   const applicationData = c.req.valid('json');
@@ -193,7 +156,7 @@ applications.put('/:id', zValidator('json', jobApplicationUpdateSchema, (result,
       data: applicationData
     }, 'Updating job application');
 
-    const updated = await updateApplication(applicationId, applicationData as any, user.id);
+    const updated = await updateApplication(applicationId, applicationData, user.id);
     if (!updated) {
       logger.warn({
         userId: user.id,
@@ -272,25 +235,7 @@ applications.delete('/:id', async (c) => {
  * Move application to a new status (for drag-drop) for the current user
  * PATCH /applications/:id/move
  */
-applications.patch('/:id/move', zValidator('json', jobApplicationMoveSchema, (result, c) => {
-  if (!result.success) {
-    logger.error({
-      error: result.error,
-      issues: result.error.issues,
-      path: '/applications/:id/move',
-      method: 'PATCH'
-    }, 'Validation failed for move application');
-
-    return c.json({
-      error: 'Validation failed',
-      details: result.error.issues.map(issue => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-        code: issue.code
-      }))
-    }, 400);
-  }
-}), async (c) => {
+applications.patch('/:id/move', zValidator('json', jobApplicationMoveSchema), async (c) => {
   const user = c.get('user');
   const applicationId = c.req.param('id');
   const moveData = c.req.valid('json');
@@ -302,7 +247,7 @@ applications.patch('/:id/move', zValidator('json', jobApplicationMoveSchema, (re
       moveData
     }, 'Moving job application');
 
-    const moved = await moveApplication(applicationId, moveData as any, user.id);
+    const moved = await moveApplication(applicationId, moveData, user.id);
     if (!moved) {
       logger.warn({
         userId: user.id,
