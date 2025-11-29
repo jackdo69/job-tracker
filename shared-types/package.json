@@ -40,6 +40,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jackdo69/job-tracker.git",
-    "directory": "packages/shared-types"
+    "directory": "shared-types"
   }
 }

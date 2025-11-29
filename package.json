@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Job Tracker - Full Stack Application",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
     "prepare": "husky install"
   },

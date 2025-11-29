@@ -40,7 +40,7 @@ const job: JobApplication = {
 ## Publishing
 
 ```bash
-cd packages/shared-types
+cd shared-types
 
 # Bump version and publish
 npm version patch  # or minor/major
