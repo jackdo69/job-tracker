@@ -38,6 +38,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'drizzle/**'],
+    ignores: ['dist/**', 'node_modules/**', 'drizzle/**', 'drizzle.config.ts'],
   },
 ];

@@ -240,6 +240,39 @@ npm run db:generate
 npm run db:migrate
 ```
 
+### Git Workflow for New Features/Tasks
+
+**At the start of every fresh conversation (new feature/task):**
+
+1. **Pull latest main:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+2. **Create feature branch:**
+   ```bash
+   git checkout -b feat/descriptive-name
+   # or fix/bug-description for bug fixes
+   ```
+
+3. **Work on the feature/fix** - Make changes, commit as needed
+
+4. **When all changes are complete:**
+   ```bash
+   # Push branch to GitHub
+   git push -u origin feat/descriptive-name
+
+   # Create pull request using gh CLI
+   gh pr create --title "Feature: Description" --body "Description of changes"
+   ```
+
+**Branch naming conventions:**
+- `feat/` - New features/tasks (e.g., `feat/company-profiles`)
+- `fix/` - Bug fixes (e.g., `fix/auth-token-expiry`)
+
+**Important:** Always ensure you're branching off the latest `main` before starting new work.
+
 ## Deployment
 
 ### Production Architecture
@@ -393,7 +426,9 @@ This project demonstrates:
 
 ---
 
-**Important:** Do not run sub-tasks in background terminal unless explicitly requested.
-- all the git actions will be done by me manually
-- do not do npm link locally
-- do not use local file reference
+**Important Instructions for Claude Code:**
+- Do not run sub-tasks in background terminal unless explicitly requested
+- **Git Workflow:** At the start of each fresh conversation (new feature/task), pull latest `main` and create a new feature branch. When all changes are complete, push the branch and create a pull request.
+- Do not do npm link locally
+- Do not use local file reference
+- Run eslint for the folder you touched the code

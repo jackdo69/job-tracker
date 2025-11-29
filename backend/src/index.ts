@@ -13,6 +13,8 @@ import healthRoutes from './routes/health.js';
 import authRoutes from './routes/auth.js';
 import applicationsRoutes from './routes/applications.js';
 import analyticsRoutes from './routes/analytics.js';
+import companiesRoutes from './routes/companies.js';
+import { serveStatic } from '@hono/node-server/serve-static';
 
 // Create Hono app
 const app = new Hono();
@@ -36,6 +38,16 @@ app.route('/', healthRoutes);
 app.route(`${config.apiPrefix}/auth`, authRoutes);
 app.route(`${config.apiPrefix}/applications`, applicationsRoutes);
 app.route(`${config.apiPrefix}/analytics`, analyticsRoutes);
+app.route(`${config.apiPrefix}/companies`, companiesRoutes);
+
+// Static file serving for company logos
+app.use(
+  `${config.apiPrefix}/uploads/company-logos/*`,
+  serveStatic({
+    root: './uploads',
+    rewriteRequestPath: (path) => path.replace(`${config.apiPrefix}/uploads`, ''),
+  })
+);
 
 /**
  * Error handler

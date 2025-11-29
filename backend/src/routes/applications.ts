@@ -13,6 +13,7 @@ import {
   deleteApplication,
   moveApplication,
 } from '../services/job-service.js';
+import { getCompanyById } from '../services/companyService.js';
 import {
   jobApplicationCreateSchema,
   jobApplicationUpdateSchema,
@@ -68,6 +69,18 @@ applications.post('/', zValidator('json', jobApplicationCreateSchema), async (c)
   const applicationData = c.req.valid('json');
 
   try {
+    // Validate company ownership if company_id is provided
+    if (applicationData.companyId) {
+      const company = await getCompanyById(applicationData.companyId, user.id);
+      if (!company) {
+        logger.warn({
+          userId: user.id,
+          companyId: applicationData.companyId
+        }, 'User attempted to use company they do not own');
+        throw new HTTPException(403, { message: 'Company not found or does not belong to you' });
+      }
+    }
+
     logger.info({
       userId: user.id,
       data: applicationData
@@ -150,6 +163,18 @@ applications.put('/:id', zValidator('json', jobApplicationUpdateSchema), async (
   const applicationData = c.req.valid('json');
 
   try {
+    // Validate company ownership if company_id is provided
+    if (applicationData.companyId !== undefined && applicationData.companyId !== null) {
+      const company = await getCompanyById(applicationData.companyId, user.id);
+      if (!company) {
+        logger.warn({
+          userId: user.id,
+          companyId: applicationData.companyId
+        }, 'User attempted to use company they do not own');
+        throw new HTTPException(403, { message: 'Company not found or does not belong to you' });
+      }
+    }
+
     logger.info({
       userId: user.id,
       applicationId,

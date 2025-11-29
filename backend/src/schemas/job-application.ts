@@ -13,6 +13,7 @@ export const applicationStatusSchema = z.nativeEnum(ApplicationStatus);
  * Base job application schema
  */
 export const jobApplicationBaseSchema = z.object({
+  companyId: z.string().uuid().optional().nullable(),
   companyName: z.string().min(1).max(255),
   positionTitle: z.string().min(1).max(255),
   status: applicationStatusSchema.default(ApplicationStatus.APPLIED),
@@ -34,6 +35,7 @@ export const jobApplicationCreateSchema = jobApplicationBaseSchema;
  * Schema for updating a job application
  */
 export const jobApplicationUpdateSchema = z.object({
+  companyId: z.string().uuid().optional().nullable(),
   companyName: z.string().min(1).max(255).optional(),
   positionTitle: z.string().min(1).max(255).optional(),
   status: applicationStatusSchema.optional(),

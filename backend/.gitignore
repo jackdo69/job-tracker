@@ -41,3 +41,8 @@ out/
 # Logs
 logs/
 *.log
+
+# Uploads
+uploads/
+!uploads/.gitkeep
+!uploads/**/.gitkeep

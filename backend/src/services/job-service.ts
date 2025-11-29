@@ -3,7 +3,7 @@
  */
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { jobApplications, type JobApplication, type ApplicationStatus } from '../db/schema.js';
+import { jobApplications, companies, type JobApplication, type ApplicationStatus, type Company } from '../db/schema.js';
 import type {
   JobApplicationCreate,
   JobApplicationUpdate,
@@ -13,30 +13,59 @@ import { ApplicationStatus as ApplicationStatusEnum } from '@jackdo69/job-tracke
 import { logger } from '../lib/logger.js';
 
 /**
- * Get all job applications for a specific user
+ * Extended job application with company data
  */
-export async function getAllApplications(userId: string): Promise<JobApplication[]> {
-  return db
-    .select()
+export interface JobApplicationWithCompany extends JobApplication {
+  company?: Company | null;
+}
+
+/**
+ * Get all job applications for a specific user
+ * Includes company data if company_id is set
+ */
+export async function getAllApplications(userId: string): Promise<JobApplicationWithCompany[]> {
+  const results = await db
+    .select({
+      application: jobApplications,
+      company: companies,
+    })
     .from(jobApplications)
+    .leftJoin(companies, eq(jobApplications.companyId, companies.id))
     .where(eq(jobApplications.userId, userId))
     .orderBy(jobApplications.status, jobApplications.orderIndex);
+
+  return results.map((result) => ({
+    ...result.application,
+    company: result.company,
+  }));
 }
 
 /**
  * Get job application by ID for a specific user
+ * Includes company data if company_id is set
  */
 export async function getApplicationById(
   applicationId: string,
   userId: string
-): Promise<JobApplication | undefined> {
+): Promise<JobApplicationWithCompany | undefined> {
   const result = await db
-    .select()
+    .select({
+      application: jobApplications,
+      company: companies,
+    })
     .from(jobApplications)
+    .leftJoin(companies, eq(jobApplications.companyId, companies.id))
     .where(and(eq(jobApplications.id, applicationId), eq(jobApplications.userId, userId)))
     .limit(1);
 
-  return result[0];
+  if (!result[0]) {
+    return undefined;
+  }
+
+  return {
+    ...result[0].application,
+    company: result[0].company,
+  };
 }
 
 /**
@@ -63,6 +92,7 @@ export async function createApplication(
       : applicationData.applicationDate;
 
     const insertData = {
+      companyId: applicationData.companyId ?? null,
       companyName: applicationData.companyName,
       positionTitle: applicationData.positionTitle,
       status: applicationData.status as ApplicationStatus,
@@ -113,6 +143,7 @@ export async function updateApplication(
 
   // Build update data (already in camelCase from shared types)
   const updateData: Partial<JobApplication> = {};
+  if (applicationData.companyId !== undefined) updateData.companyId = applicationData.companyId;
   if (applicationData.companyName !== undefined) updateData.companyName = applicationData.companyName;
   if (applicationData.positionTitle !== undefined) updateData.positionTitle = applicationData.positionTitle;
   if (applicationData.status !== undefined) updateData.status = applicationData.status as ApplicationStatus;
