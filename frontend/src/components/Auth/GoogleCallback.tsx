@@ -31,8 +31,12 @@ export const GoogleCallback: React.FC = () => {
         // Store the token
         tokenManager.setToken(token);
 
-        // Redirect to home page
-        window.location.href = '/';
+        // Wait a tick to ensure localStorage write completes (critical for mobile browsers)
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Force a full page reload to ensure auth state is properly initialized
+        // This is more reliable on mobile Chrome than React Router navigation
+        window.location.replace('/');
       } catch (err: any) {
         setError('Failed to complete Google login');
         setTimeout(() => navigate('/login'), 3000);
