@@ -5,7 +5,7 @@ import { Hono, Context } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { HTTPException } from 'hono/http-exception';
 import { authMiddleware, type AuthContext } from '../middleware/auth.js';
-import { registerUser, authenticateUser, getGoogleAuthUrl, handleGoogleCallback } from '../services/auth-service.js';
+import { registerUser, authenticateUser, getGoogleAuthUrl, handleGoogleCallback, exchangeOAuthCode } from '../services/auth-service.js';
 import { userCreateSchema, loginRequestSchema } from '../schemas/user.js';
 import { config } from '../lib/config.js';
 import { logger } from '../lib/logger.js';
@@ -114,8 +114,9 @@ auth.get('/google/callback', async (c) => {
       config.googleRedirectUri
     );
 
-    // Redirect to frontend with token as query parameter
-    const redirectUrl = `${config.frontendUrl}/auth/google/callback?token=${response.accessToken}`;
+    // Redirect to frontend with short exchange code instead of full JWT token
+    // This is more reliable on mobile browsers which may truncate long URLs
+    const redirectUrl = `${config.frontendUrl}/auth/google/callback?code=${response.exchangeCode}`;
     return c.redirect(redirectUrl);
   } catch (error) {
     if (error instanceof HTTPException) {
@@ -127,6 +128,28 @@ auth.get('/google/callback', async (c) => {
     logger.error({ err: error, code }, 'Google OAuth callback failed');
     const errorRedirectUrl = `${config.frontendUrl}/auth/google/callback?error=Authentication failed`;
     return c.redirect(errorRedirectUrl);
+  }
+});
+
+/**
+ * Exchange OAuth code for access token
+ * POST /auth/google/exchange
+ */
+auth.post('/google/exchange', async (c) => {
+  const { code } = await c.req.json<{ code: string }>();
+
+  if (!code) {
+    throw new HTTPException(400, { message: 'Exchange code is required' });
+  }
+
+  try {
+    const response = await exchangeOAuthCode(code);
+    return c.json(response);
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    throw new HTTPException(500, { message: 'Failed to exchange code' });
   }
 });
 

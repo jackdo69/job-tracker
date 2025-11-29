@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { tokenManager } from '../../services/api';
+import { authApi, tokenManager } from '../../services/api';
 
 export const GoogleCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -12,7 +12,7 @@ export const GoogleCallback: React.FC = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const token = searchParams.get('token');
+      const code = searchParams.get('code');
       const errorParam = searchParams.get('error');
 
       if (errorParam) {
@@ -21,24 +21,26 @@ export const GoogleCallback: React.FC = () => {
         return;
       }
 
-      if (!token) {
-        setError('No access token received');
+      if (!code) {
+        setError('No authorization code received');
         setTimeout(() => navigate('/login'), 3000);
         return;
       }
 
       try {
-        // Store the token
-        tokenManager.setToken(token);
+        // Exchange the short code for the access token
+        // This is more reliable on mobile than passing the full JWT in the URL
+        const response = await authApi.exchangeOAuthCode(code);
 
-        // Wait a tick to ensure localStorage write completes (critical for mobile browsers)
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Store the token
+        tokenManager.setToken(response.accessToken);
 
         // Force a full page reload to ensure auth state is properly initialized
         // This is more reliable on mobile Chrome than React Router navigation
         window.location.replace('/');
       } catch (err: any) {
-        setError('Failed to complete Google login');
+        console.error('OAuth exchange error:', err);
+        setError(err.response?.data?.message || 'Failed to complete Google login');
         setTimeout(() => navigate('/login'), 3000);
       }
     };

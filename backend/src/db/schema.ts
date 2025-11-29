@@ -70,6 +70,22 @@ export const jobApplications = pgTable('job_applications', {
 }));
 
 /**
+ * OAuth sessions table for temporary token exchange
+ * Stores short-lived codes for mobile-friendly OAuth flow
+ */
+export const oauthSessions = pgTable('oauth_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  code: varchar('code', { length: 64 }).notNull().unique(),
+  accessToken: text('access_token').notNull(),
+  userId: uuid('user_id').notNull(),
+  expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+}, (table) => ({
+  codeIdx: index('oauth_sessions_code_idx').on(table.code),
+  expiresAtIdx: index('oauth_sessions_expires_at_idx').on(table.expiresAt),
+}));
+
+/**
  * TypeScript types inferred from schema
  */
 export type User = typeof users.$inferSelect;
@@ -80,5 +96,8 @@ export type NewCompany = typeof companies.$inferInsert;
 
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type NewJobApplication = typeof jobApplications.$inferInsert;
+
+export type OAuthSession = typeof oauthSessions.$inferSelect;
+export type NewOAuthSession = typeof oauthSessions.$inferInsert;
 
 export type ApplicationStatus = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected' | 'Cancelled';

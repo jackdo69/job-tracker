@@ -1,9 +1,9 @@
 /**
  * Authentication service for user registration and login
  */
-import { eq } from 'drizzle-orm';
+import { eq, lt } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { users, type User } from '../db/schema.js';
+import { users, oauthSessions, type User, type OAuthSession } from '../db/schema.js';
 import type { UserResponse } from '../schemas/user.js';
 import type { LoginRequest, LoginResponse, RegisterRequest } from '@jackdo69/job-tracker-shared-types';
 import { verifyPassword, getPasswordHash, createAccessToken } from '../lib/auth.js';
@@ -275,13 +275,14 @@ async function getGoogleUser(access_token: string, id_token: string): Promise<{
 
 /**
  * Handle Google OAuth callback and login/register user
+ * Returns a short-lived exchange code instead of the full token for mobile compatibility
  */
 export async function handleGoogleCallback(
   code: string,
   clientId: string,
   clientSecret: string,
   redirectUri: string
-): Promise<LoginResponse> {
+): Promise<{ exchangeCode: string; user: User }> {
   try {
     // Exchange code for tokens
     const { access_token, id_token } = await getGoogleTokens(code, clientId, clientSecret, redirectUri);
@@ -323,8 +324,69 @@ export async function handleGoogleCallback(
       email: user.email,
     });
 
-    return {
+    // Create a short-lived exchange code (more reliable for mobile than long JWT in URL)
+    const exchangeCode = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    await db.insert(oauthSessions).values({
+      id: crypto.randomUUID(),
+      code: exchangeCode,
       accessToken: accessToken,
+      userId: user.id,
+      expiresAt,
+    });
+
+    // Clean up expired sessions periodically
+    await db.delete(oauthSessions).where(lt(oauthSessions.expiresAt, new Date()));
+
+    return {
+      exchangeCode,
+      user,
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Google OAuth callback error:', error);
+    throw new HTTPException(500, { message: 'Authentication failed' });
+  }
+}
+
+/**
+ * Exchange OAuth code for access token
+ * This allows the frontend to safely retrieve the token without passing it in the URL
+ */
+export async function exchangeOAuthCode(exchangeCode: string): Promise<LoginResponse> {
+  try {
+    // Find the session
+    const [session] = await db
+      .select()
+      .from(oauthSessions)
+      .where(eq(oauthSessions.code, exchangeCode))
+      .limit(1);
+
+    if (!session) {
+      throw new HTTPException(400, { message: 'Invalid or expired exchange code' });
+    }
+
+    // Check if expired
+    if (session.expiresAt < new Date()) {
+      // Clean up expired session
+      await db.delete(oauthSessions).where(eq(oauthSessions.code, exchangeCode));
+      throw new HTTPException(400, { message: 'Exchange code has expired' });
+    }
+
+    // Get user
+    const user = await getUserById(session.userId);
+    if (!user) {
+      throw new HTTPException(404, { message: 'User not found' });
+    }
+
+    // Delete the session (one-time use)
+    await db.delete(oauthSessions).where(eq(oauthSessions.code, exchangeCode));
+
+    return {
+      accessToken: session.accessToken,
       tokenType: 'bearer',
       user: {
         id: user.id,
@@ -339,7 +401,7 @@ export async function handleGoogleCallback(
     if (error instanceof HTTPException) {
       throw error;
     }
-    console.error('Google OAuth callback error:', error);
-    throw new HTTPException(500, { message: 'Authentication failed' });
+    console.error('OAuth code exchange error:', error);
+    throw new HTTPException(500, { message: 'Failed to exchange code' });
   }
 }
