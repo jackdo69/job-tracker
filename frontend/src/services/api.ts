@@ -12,6 +12,7 @@ import type {
   LoginRequest,
   RegisterRequest,
   LoginResponse,
+  Company,
 } from '@jackdo69/job-tracker-shared-types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -55,9 +56,9 @@ if (storedToken) {
  */
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: unknown) => {
     // Handle 401 Unauthorized errors
-    if (error.response?.status === 401) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
       // Clear token and redirect to login
       tokenManager.removeToken();
 
@@ -139,6 +140,83 @@ export const analyticsApi = {
   get: async (): Promise<AnalyticsData> => {
     const response = await api.get<AnalyticsData>('/analytics');
     return response.data;
+  },
+};
+
+/**
+ * Companies API
+ */
+export const companiesApi = {
+  /**
+   * Get all companies for the current user
+   */
+  getAll: async (): Promise<Company[]> => {
+    const response = await api.get<Company[]>('/companies');
+    return response.data;
+  },
+
+  /**
+   * Get single company by ID
+   */
+  getById: async (id: string): Promise<Company> => {
+    const response = await api.get<Company>(`/companies/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Create new company with optional logo
+   */
+  create: async (name: string, logoFile?: File): Promise<Company> => {
+    const formData = new FormData();
+    formData.append('name', name);
+    if (logoFile) {
+      formData.append('logo', logoFile);
+    }
+
+    const response = await api.post<Company>('/companies', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Update company name and/or logo
+   */
+  update: async (
+    id: string,
+    name?: string,
+    logoFile?: File
+  ): Promise<Company> => {
+    const formData = new FormData();
+    if (name !== undefined) {
+      formData.append('name', name);
+    }
+    if (logoFile) {
+      formData.append('logo', logoFile);
+    }
+
+    const response = await api.put<Company>(`/companies/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Delete company
+   */
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/companies/${id}`);
+  },
+
+  /**
+   * Get company logo URL
+   */
+  getLogoUrl: (filename: string): string => {
+    return `${API_URL}/api/uploads/company-logos/${filename}`;
   },
 };
 

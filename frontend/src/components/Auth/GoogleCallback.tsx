@@ -3,6 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import { authApi, tokenManager } from '../../services/api';
 
 export const GoogleCallback: React.FC = () => {
@@ -38,14 +39,18 @@ export const GoogleCallback: React.FC = () => {
         // Force a full page reload to ensure auth state is properly initialized
         // This is more reliable on mobile Chrome than React Router navigation
         window.location.replace('/');
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('OAuth exchange error:', err);
-        setError(err.response?.data?.message || 'Failed to complete Google login');
+        if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object' && 'message' in err.response.data) {
+          setError((err.response.data as { message?: string }).message || 'Failed to complete Google login');
+        } else {
+          setError('Failed to complete Google login');
+        }
         setTimeout(() => navigate('/login'), 3000);
       }
     };
 
-    handleCallback();
+    void handleCallback();
   }, [searchParams, navigate]);
 
   return (

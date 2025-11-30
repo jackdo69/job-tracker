@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { jobApplicationsApi } from '../services/api';
 import type {
+  JobApplication,
   JobApplicationUpdate,
   JobApplicationMove,
 } from '@jackdo69/job-tracker-shared-types';
@@ -50,7 +51,7 @@ export function useCreateJob() {
     mutationFn: jobApplicationsApi.create,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
     },
   });
 }
@@ -66,8 +67,8 @@ export function useUpdateJob() {
       jobApplicationsApi.update(id, data),
     onSuccess: (_, variables) => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: jobKeys.detail(variables.id) });
     },
   });
 }
@@ -82,7 +83,7 @@ export function useDeleteJob() {
     mutationFn: jobApplicationsApi.delete,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
     },
   });
 }
@@ -104,9 +105,9 @@ export function useMoveJob() {
       const previousJobs = queryClient.getQueryData(jobKeys.lists());
 
       // Optimistically update
-      queryClient.setQueryData(jobKeys.lists(), (old: any) => {
+      queryClient.setQueryData(jobKeys.lists(), (old: JobApplication[] | undefined) => {
         if (!old) return old;
-        return old.map((job: any) =>
+        return old.map((job: JobApplication) =>
           job.id === id
             ? {
                 ...job,
@@ -129,7 +130,7 @@ export function useMoveJob() {
     },
     onSettled: () => {
       // Always refetch after error or success
-      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
     },
   });
 }

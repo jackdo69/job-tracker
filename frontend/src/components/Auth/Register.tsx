@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../common/ThemeToggle';
 
@@ -35,10 +36,12 @@ export const Register: React.FC = () => {
     try {
       await register(email, password, fullName || undefined);
       navigate('/');
-    } catch (err: any) {
-      setError(
-        err.response?.data?.detail || 'Failed to register. Please try again.'
-      );
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object' && 'detail' in err.response.data) {
+        setError((err.response.data as { detail?: string }).detail || 'Failed to register. Please try again.');
+      } else {
+        setError('Failed to register. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +51,12 @@ export const Register: React.FC = () => {
     setError('');
     try {
       await loginWithGoogle();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to initiate Google sign up');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object' && 'detail' in err.response.data) {
+        setError((err.response.data as { detail?: string }).detail || 'Failed to initiate Google sign up');
+      } else {
+        setError('Failed to initiate Google sign up');
+      }
     }
   };
 
