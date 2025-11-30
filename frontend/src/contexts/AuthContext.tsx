@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
     };
 
-    initializeAuth();
+    void initializeAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {

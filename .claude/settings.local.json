@@ -25,7 +25,8 @@
       "Bash(tee:*)",
       "Bash(chmod:*)",
       "Bash(/tmp/test_companies.sh)",
-      "Bash(/tmp/test_image_upload.sh)"
+      "Bash(/tmp/test_image_upload.sh)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

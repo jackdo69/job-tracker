@@ -432,3 +432,7 @@ This project demonstrates:
 - Do not do npm link locally
 - Do not use local file reference
 - Run eslint for the folder you touched the code
+- whenever you finish updating the code, before telling me you're finish, run the following command for the folder you updated the code and fix any errors arise
+npm run lint
+npm run type-check
+npm run build

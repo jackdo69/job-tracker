@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../common/ThemeToggle';
 
@@ -22,8 +23,12 @@ export const Login: React.FC = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to login. Please check your credentials.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object' && 'detail' in err.response.data) {
+        setError((err.response.data as { detail?: string }).detail || 'Failed to login. Please check your credentials.');
+      } else {
+        setError('Failed to login. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -33,8 +38,12 @@ export const Login: React.FC = () => {
     setError('');
     try {
       await loginWithGoogle();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to initiate Google login');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object' && 'detail' in err.response.data) {
+        setError((err.response.data as { detail?: string }).detail || 'Failed to initiate Google login');
+      } else {
+        setError('Failed to initiate Google login');
+      }
     }
   };
 
