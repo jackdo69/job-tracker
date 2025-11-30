@@ -34,6 +34,14 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
     }
   };
 
+  const getLogoUrl = (logo: string | null) => {
+    if (!logo) return null;
+    return `${import.meta.env.VITE_API_URL}/api/uploads/company-logos/${logo}`;
+  };
+
+  // Get company logo from linked company
+  const companyLogo = job.company?.logo ? getLogoUrl(job.company.logo) : null;
+
   return (
     <div
       ref={setNodeRef}
@@ -73,7 +81,24 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         </button>
       </div>
 
-      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">{job.companyName}</p>
+      <div className="flex items-center gap-2 mb-2">
+        {companyLogo ? (
+          <img
+            src={companyLogo}
+            alt={job.companyName}
+            className="w-5 h-5 md:w-6 md:h-6 rounded object-cover flex-shrink-0"
+          />
+        ) : (
+          job.company && (
+            <div className="w-5 h-5 md:w-6 md:h-6 rounded bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+              {job.companyName.charAt(0).toUpperCase()}
+            </div>
+          )
+        )}
+        <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 truncate">
+          {job.companyName}
+        </p>
+      </div>
 
       {job.interviewStage && (
         <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 truncate">Stage: {job.interviewStage}</p>

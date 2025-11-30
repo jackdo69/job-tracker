@@ -3,6 +3,8 @@
  */
 import { useState, useEffect } from 'react';
 import { useCreateJob, useUpdateJob } from '../../hooks/useJobs';
+import { useCompanies } from '../../hooks/useCompanies';
+import { CompanySelect } from '../CompanySelect/CompanySelect';
 import {
   ApplicationStatus,
   type JobApplication,
@@ -18,9 +20,11 @@ interface JobFormModalProps {
 export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
   const createJobMutation = useCreateJob();
   const updateJobMutation = useUpdateJob();
+  const { data: companies = [] } = useCompanies();
   const isEditing = !!job;
 
   const [formData, setFormData] = useState({
+    companyId: null as string | null,
     companyName: '',
     positionTitle: '',
     status: ApplicationStatus.APPLIED,
@@ -45,6 +49,7 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
       }
 
       setFormData({
+        companyId: job.companyId || null,
         companyName: job.companyName,
         positionTitle: job.positionTitle,
         status: job.status,
@@ -58,6 +63,7 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     } else {
       // Reset form for new job
       setFormData({
+        companyId: null,
         companyName: '',
         positionTitle: '',
         status: ApplicationStatus.APPLIED,
@@ -88,6 +94,19 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     };
   }, [isOpen, onClose]);
 
+  // Auto-fill company name when company is selected
+  useEffect(() => {
+    if (formData.companyId) {
+      const selectedCompany = companies.find((c) => c.id === formData.companyId);
+      if (selectedCompany) {
+        setFormData((prev) => ({
+          ...prev,
+          companyName: selectedCompany.name,
+        }));
+      }
+    }
+  }, [formData.companyId, companies]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,6 +125,7 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
     }
 
     const data: JobApplicationCreate = {
+      companyId: formData.companyId,
       companyName: formData.companyName,
       positionTitle: formData.positionTitle,
       status: formData.status,
@@ -162,20 +182,37 @@ export function JobFormModal({ isOpen, onClose, job }: JobFormModalProps) {
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-3 sm:space-y-4">
-              {/* Company Name */}
+              {/* Company Select */}
+              <CompanySelect
+                value={formData.companyId}
+                onChange={(companyId) =>
+                  setFormData({ ...formData, companyId })
+                }
+                label="Company"
+                placeholder="Select or create a company..."
+              />
+
+              {/* Company Name (Fallback) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Company Name *
+                  Company Name {!formData.companyId && '*'}
                 </label>
                 <input
                   type="text"
-                  required
+                  required={!formData.companyId}
                   value={formData.companyName}
                   onChange={(e) =>
                     setFormData({ ...formData, companyName: e.target.value })
                   }
-                  className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder={formData.companyId ? 'Linked to company above' : 'Enter company name'}
+                  disabled={!!formData.companyId}
+                  className="w-full px-3 py-2.5 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {formData.companyId && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    This field is automatically filled from the selected company
+                  </p>
+                )}
               </div>
 
               {/* Position Title */}

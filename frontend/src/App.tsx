@@ -13,6 +13,7 @@ import { Login, Register, GoogleCallback } from './components/Auth';
 import { KanbanBoard } from './components/KanbanBoard/KanbanBoard';
 import { JobFormModal } from './components/JobForm/JobFormModal';
 import { Dashboard } from './components/Analytics/Dashboard';
+import { CompaniesPage } from './components/Companies/CompaniesPage';
 import type { JobApplication } from '@jackdo69/job-tracker-shared-types';
 
 const queryClient = new QueryClient({
@@ -27,7 +28,7 @@ const queryClient = new QueryClient({
 function MainApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
-  const [activeView, setActiveView] = useState<'board' | 'analytics'>('board');
+  const [activeView, setActiveView] = useState<'board' | 'analytics' | 'companies'>('board');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
 
@@ -95,6 +96,16 @@ function MainApp() {
                   }`}
                 >
                   Analytics
+                </button>
+                <button
+                  onClick={() => setActiveView('companies')}
+                  className={`px-3 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === 'companies'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Companies
                 </button>
               </div>
 
@@ -175,7 +186,7 @@ function MainApp() {
                     setActiveView('board');
                     setMobileMenuOpen(false);
                   }}
-                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeView === 'board'
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                       : 'text-gray-600 dark:text-gray-300'
@@ -188,13 +199,26 @@ function MainApp() {
                     setActiveView('analytics');
                     setMobileMenuOpen(false);
                   }}
-                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeView === 'analytics'
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >
                   Analytics
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveView('companies');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeView === 'companies'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  Companies
                 </button>
               </div>
 
@@ -233,11 +257,9 @@ function MainApp() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8">
-        {activeView === 'board' ? (
-          <KanbanBoard onEdit={handleEdit} />
-        ) : (
-          <Dashboard />
-        )}
+        {activeView === 'board' && <KanbanBoard onEdit={handleEdit} />}
+        {activeView === 'analytics' && <Dashboard />}
+        {activeView === 'companies' && <CompaniesPage />}
       </main>
 
       {/* Job Form Modal */}
