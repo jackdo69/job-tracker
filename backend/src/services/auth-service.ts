@@ -3,7 +3,7 @@
  */
 import { eq, lt } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { users, oauthSessions, type User, type OAuthSession } from '../db/schema.js';
+import { users, oauthSessions, type User } from '../db/schema.js';
 import type { UserResponse } from '../schemas/user.js';
 import type { LoginRequest, LoginResponse, RegisterRequest } from '@jackdo69/job-tracker-shared-types';
 import { verifyPassword, getPasswordHash, createAccessToken } from '../lib/auth.js';

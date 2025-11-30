@@ -5,7 +5,6 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { HTTPException } from 'hono/http-exception';
 import { authMiddleware, type AuthContext } from '../middleware/auth.js';
-import { handleFileUpload } from '../middleware/upload.js';
 import {
   createCompany,
   getCompaniesByUser,
@@ -19,6 +18,10 @@ import {
   companyIdParamSchema,
 } from '../schemas/company.js';
 import { logger } from '../lib/logger.js';
+
+// File upload validation
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const companies = new Hono<AuthContext>();
 
@@ -63,16 +66,16 @@ companies.get('/', async (c) => {
  * Create a new company for the current user
  * POST /companies
  * Content-Type: multipart/form-data
- * Fields: name (required), logo (optional file)
+ * Fields: name (required), logo (required file)
  */
-companies.post('/', handleFileUpload, async (c) => {
+companies.post('/', async (c) => {
   const user = c.get('user');
 
   try {
-    // Extract form data
-    const req = c.req.raw as { file?: { buffer: Buffer } };
-    const formData = await c.req.formData();
-    const name = formData.get('name') as string;
+    // Parse multipart/form-data using Hono's native parseBody
+    const body = await c.req.parseBody();
+    const name = body.name as string;
+    const logoFile = body.logo;
 
     // Validate company name
     const validationResult = companyCreateSchema.safeParse({ name });
@@ -82,13 +85,36 @@ companies.post('/', handleFileUpload, async (c) => {
       });
     }
 
-    // Get uploaded file (if any)
-    const logoBuffer = req.file?.buffer;
+    // Validate logo file is provided and is a Blob/File
+    if (!logoFile || typeof logoFile === 'string') {
+      throw new HTTPException(400, {
+        message: 'Logo image is required'
+      });
+    }
+
+    // Validate file size
+    if (logoFile.size > MAX_FILE_SIZE) {
+      throw new HTTPException(400, {
+        message: 'File size exceeds 5MB limit'
+      });
+    }
+
+    // Validate file type
+    if (!ALLOWED_MIME_TYPES.includes(logoFile.type)) {
+      throw new HTTPException(400, {
+        message: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
+      });
+    }
+
+    // Convert Blob to Buffer
+    const logoBuffer = Buffer.from(await logoFile.arrayBuffer());
 
     logger.info({
       userId: user.id,
       companyName: name,
-      hasLogo: !!logoBuffer
+      hasLogo: true,
+      logoSize: logoFile.size,
+      logoType: logoFile.type
     }, 'Creating company');
 
     const company = await createCompany(user.id, name, logoBuffer);
@@ -163,7 +189,7 @@ companies.get('/:id', zValidator('param', companyIdParamSchema), async (c) => {
  * Content-Type: multipart/form-data
  * Fields: name (optional), logo (optional file)
  */
-companies.put('/:id', handleFileUpload, async (c) => {
+companies.put('/:id', async (c) => {
   const user = c.get('user');
   const companyId = c.req.param('id');
 
@@ -174,13 +200,15 @@ companies.put('/:id', handleFileUpload, async (c) => {
       throw new HTTPException(400, { message: 'Invalid company ID' });
     }
 
-    // Extract form data
-    const req = c.req.raw as { file?: { buffer: Buffer } };
-    const formData = await c.req.formData();
-    const name = formData.get('name') as string | null;
+    // Parse multipart/form-data using Hono's native parseBody
+    const body = await c.req.parseBody();
+    const name = body.name as string | undefined;
+    const logoFile = body.logo;
+
+    let logoBuffer: Buffer | undefined;
 
     // Validate company name if provided
-    if (name !== null && name !== undefined) {
+    if (name !== null && name !== undefined && name !== '') {
       const validationResult = companyUpdateSchema.safeParse({ name });
       if (!validationResult.success) {
         throw new HTTPException(400, {
@@ -189,8 +217,25 @@ companies.put('/:id', handleFileUpload, async (c) => {
       }
     }
 
-    // Get uploaded file (if any)
-    const logoBuffer = req.file?.buffer;
+    // Validate and process logo if provided
+    if (logoFile && typeof logoFile !== 'string') {
+      // Validate file size
+      if (logoFile.size > MAX_FILE_SIZE) {
+        throw new HTTPException(400, {
+          message: 'File size exceeds 5MB limit'
+        });
+      }
+
+      // Validate file type
+      if (!ALLOWED_MIME_TYPES.includes(logoFile.type)) {
+        throw new HTTPException(400, {
+          message: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
+        });
+      }
+
+      // Convert Blob to Buffer
+      logoBuffer = Buffer.from(await logoFile.arrayBuffer());
+    }
 
     logger.info({
       userId: user.id,
