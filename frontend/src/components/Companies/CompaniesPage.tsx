@@ -191,12 +191,12 @@ export function CompaniesPage() {
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Logo */}
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center p-4">
+              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center p-8">
                 {company.logo ? (
                   <img
                     src={getLogoUrl(company.logo) || ''}
                     alt={company.name}
-                    className="w-full h-full object-contain"
+                    className="w-24 h-24 object-contain"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
