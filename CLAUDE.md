@@ -436,3 +436,4 @@ This project demonstrates:
 npm run lint
 npm run type-check
 npm run build
+- whenever I asked you about an error, that is happening remote, do not check local logs or container unless specify
