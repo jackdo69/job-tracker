@@ -6,6 +6,7 @@ import { HTTPException } from 'hono/http-exception';
 import { decodeAccessToken } from '../lib/auth.js';
 import { getCurrentUserFromToken } from '../services/auth-service.js';
 import type { User } from '../db/schema.js';
+import { sql } from '../db/db.js';
 
 /**
  * Extend Hono context to include user
@@ -60,6 +61,12 @@ export async function authMiddleware(c: Context<AuthContext>, next: Next) {
     // Get user from database
     const user = await getCurrentUserFromToken(userId);
     c.set('user', user);
+
+    // Set user context for RLS policies
+    // This enables Row Level Security to identify the current user
+    // Note: Using SET (not SET LOCAL) because we're not in an explicit transaction
+    // The connection pool will maintain this for the duration of the request
+    await sql`SET app.current_user_id = ${user.id}`;
 
     await next();
   } catch (error) {
