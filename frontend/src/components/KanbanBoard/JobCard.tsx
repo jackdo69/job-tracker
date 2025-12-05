@@ -34,13 +34,8 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
     }
   };
 
-  const getLogoUrl = (logo: string | null) => {
-    if (!logo) return null;
-    return `${import.meta.env.VITE_API_URL}/api/uploads/company-logos/${logo}`;
-  };
-
-  // Get company logo from linked company
-  const companyLogo = job.company?.logo ? getLogoUrl(job.company.logo) : null;
+  // Get company logo from linked company (logo is already a full URL from Supabase Storage)
+  const companyLogo = job.company?.logo || null;
 
   return (
     <div

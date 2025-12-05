@@ -40,11 +40,6 @@ export function CompaniesPage() {
     setIsCreateModalOpen(false);
   };
 
-  const getLogoUrl = (logo: string | null) => {
-    if (!logo) return null;
-    return `${import.meta.env.VITE_API_URL}/api/uploads/company-logos/${logo}`;
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -194,7 +189,7 @@ export function CompaniesPage() {
               <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center p-8">
                 {company.logo ? (
                   <img
-                    src={getLogoUrl(company.logo) || ''}
+                    src={company.logo}
                     alt={company.name}
                     className="w-24 h-24 object-contain"
                   />

@@ -36,7 +36,7 @@ export const companies = pgTable('companies', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
-  logo: varchar('logo', { length: 255 }),
+  logo: text('logo'), // Stores full Supabase Storage URL
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
 }, (table) => ({

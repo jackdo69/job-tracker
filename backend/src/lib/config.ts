@@ -36,6 +36,10 @@ export const config = {
     return this.corsOrigins[0] || 'http://localhost:3000';
   },
 
+  // Supabase Storage
+  supabaseUrl: process.env.SUPABASE_URL || '',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+
   // Server
   host: process.env.HOST || '0.0.0.0',
   port: parseInt(process.env.PORT || '8080', 10),

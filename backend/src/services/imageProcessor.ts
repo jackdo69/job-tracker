@@ -1,25 +1,19 @@
 import sharp from 'sharp';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { supabase, STORAGE_BUCKET } from '../lib/supabase.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const UPLOADS_DIR = path.join(__dirname, '../../uploads/company-logos');
 const TARGET_SIZE = 200;
 const JPEG_QUALITY = 65;
 
 /**
- * Process and save company logo
+ * Process and upload company logo to Supabase Storage
  * - Resizes to 200x200px (center crop, square)
  * - Converts to JPEG format
  * - Compresses to target quality
- * - Saves to uploads/company-logos/{companyId}.jpg
+ * - Uploads to Supabase Storage bucket
  *
- * @param buffer - Image buffer from multer
+ * @param buffer - Image buffer
  * @param companyId - Company UUID
- * @returns Filename of saved image
+ * @returns Public URL of uploaded image
  */
 export async function processCompanyLogo(
   buffer: Buffer,
@@ -27,54 +21,95 @@ export async function processCompanyLogo(
 ): Promise<string> {
   try {
     const filename = `${companyId}.jpg`;
-    const outputPath = path.join(UPLOADS_DIR, filename);
-
-    // Ensure uploads directory exists
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
     // Process image: resize, crop to square, compress
-    await sharp(buffer)
+    const processedBuffer = await sharp(buffer)
       .resize(TARGET_SIZE, TARGET_SIZE, {
         fit: 'cover',
         position: 'center',
       })
       .jpeg({ quality: JPEG_QUALITY })
-      .toFile(outputPath);
+      .toBuffer();
 
-    return filename;
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(filename, processedBuffer, {
+        contentType: 'image/jpeg',
+        upsert: true, // Replace if exists
+      });
+
+    if (uploadError) {
+      throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data } = supabase.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(filename);
+
+    return data.publicUrl;
   } catch (error) {
     throw new Error(`Failed to process company logo: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
 /**
- * Delete company logo file
+ * Delete company logo from Supabase Storage
  *
- * @param filename - Logo filename to delete
+ * @param logoUrl - Full public URL of the logo
  */
-export async function deleteCompanyLogo(filename: string): Promise<void> {
+export async function deleteCompanyLogo(logoUrl: string): Promise<void> {
   try {
-    const filePath = path.join(UPLOADS_DIR, filename);
-    await fs.unlink(filePath);
-  } catch (error) {
-    // Ignore if file doesn't exist
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error('Failed to delete logo file:', error);
+    // Extract filename from URL
+    // URL format: https://{project}.supabase.co/storage/v1/object/public/company-logos/{filename}
+    const urlParts = logoUrl.split('/');
+    const filename = urlParts[urlParts.length - 1];
+
+    if (!filename) {
+      console.error('Failed to extract filename from logo URL:', logoUrl);
+      return;
     }
+
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .remove([filename]);
+
+    if (error) {
+      console.error('Failed to delete logo from Supabase Storage:', error);
+    }
+  } catch (error) {
+    console.error('Failed to delete logo file:', error);
   }
 }
 
 /**
- * Check if logo file exists
+ * Check if logo file exists in Supabase Storage
  *
- * @param filename - Logo filename to check
+ * @param logoUrl - Full public URL of the logo
  * @returns True if file exists
  */
-export async function logoFileExists(filename: string): Promise<boolean> {
+export async function logoFileExists(logoUrl: string): Promise<boolean> {
   try {
-    const filePath = path.join(UPLOADS_DIR, filename);
-    await fs.access(filePath);
-    return true;
+    // Extract filename from URL
+    const urlParts = logoUrl.split('/');
+    const filename = urlParts[urlParts.length - 1];
+
+    if (!filename) {
+      return false;
+    }
+
+    const { data, error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list('', {
+        search: filename,
+      });
+
+    if (error) {
+      return false;
+    }
+
+    return data.length > 0;
   } catch {
     return false;
   }
