@@ -70,11 +70,6 @@ export function CompanySelect({
     setIsCreateModalOpen(true);
   };
 
-  const getLogoUrl = (logo: string | null) => {
-    if (!logo) return null;
-    return `${import.meta.env.VITE_API_URL}/api/uploads/company-logos/${logo}`;
-  };
-
   return (
     <>
       <div className="relative" ref={dropdownRef}>
@@ -95,7 +90,7 @@ export function CompanySelect({
               <>
                 {selectedCompany.logo && (
                   <img
-                    src={getLogoUrl(selectedCompany.logo) || ''}
+                    src={selectedCompany.logo}
                     alt={selectedCompany.name}
                     className="w-6 h-6 rounded object-cover flex-shrink-0"
                   />
@@ -203,7 +198,7 @@ export function CompanySelect({
                 >
                   {company.logo ? (
                     <img
-                      src={getLogoUrl(company.logo) || ''}
+                      src={company.logo}
                       alt={company.name}
                       className="w-6 h-6 rounded object-cover flex-shrink-0"
                     />
