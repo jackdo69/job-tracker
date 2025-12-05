@@ -33,9 +33,9 @@ export function CompanyFormModal({
   useEffect(() => {
     if (company) {
       setName(company.name);
-      // Show existing logo if available
+      // Show existing logo if available (logo is already a full URL from Supabase Storage)
       if (company.logo) {
-        setLogoPreview(`${import.meta.env.VITE_API_URL}/api/uploads/company-logos/${company.logo}`);
+        setLogoPreview(company.logo);
       }
     } else {
       // Reset form for new company
