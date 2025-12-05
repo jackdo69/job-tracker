@@ -31,6 +31,15 @@ export async function processCompanyLogo(
       .jpeg({ quality: JPEG_QUALITY })
       .toBuffer();
 
+    console.log('📸 Uploading to Supabase Storage:', {
+      bucket: STORAGE_BUCKET,
+      filename,
+      originalBufferSize: buffer.length,
+      processedBufferSize: processedBuffer.length,
+      contentType: 'image/jpeg',
+      upsert: true
+    });
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET)
@@ -40,24 +49,40 @@ export async function processCompanyLogo(
       });
 
     if (uploadError) {
-      console.error('Supabase upload error details:', {
-        message: uploadError.message,
-        name: uploadError.name,
-        cause: uploadError.cause,
-        fullError: uploadError
-      });
+      console.error('❌ Supabase upload failed with detailed error:');
+      console.error('Error object:', JSON.stringify(uploadError, null, 2));
+      console.error('Error keys:', Object.keys(uploadError));
+      console.error('Error name:', uploadError.name);
+      console.error('Error message:', uploadError.message);
+      console.error('Error cause:', uploadError.cause);
+      console.error('Error stack:', uploadError.stack);
+
+      // Try to extract additional error details if they exist
+      const errorRecord = uploadError as unknown as Record<string, unknown>;
+      if ('statusCode' in errorRecord) {
+        console.error('Error statusCode:', errorRecord.statusCode);
+      }
+      if ('error' in errorRecord) {
+        console.error('Error error:', errorRecord.error);
+      }
+
+      console.error('Full error object stringified:', JSON.stringify(uploadError, Object.getOwnPropertyNames(uploadError), 2));
+
       throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message || JSON.stringify(uploadError)}`);
     }
 
-    console.log('Upload successful:', uploadData);
+    console.log('✅ Upload successful:', uploadData);
 
     // Get public URL
     const { data } = supabase.storage
       .from(STORAGE_BUCKET)
       .getPublicUrl(filename);
 
+    console.log('📍 Public URL:', data.publicUrl);
+
     return data.publicUrl;
   } catch (error) {
+    console.error('🔥 processCompanyLogo caught error:', error);
     throw new Error(`Failed to process company logo: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
