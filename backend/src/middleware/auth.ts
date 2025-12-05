@@ -58,15 +58,15 @@ export async function authMiddleware(c: Context<AuthContext>, next: Next) {
   }
 
   try {
-    // Get user from database
-    const user = await getCurrentUserFromToken(userId);
-    c.set('user', user);
-
-    // Set user context for RLS policies
+    // Set user context for RLS policies BEFORE querying the database
     // This enables Row Level Security to identify the current user
     // Note: Using SET (not SET LOCAL) because we're not in an explicit transaction
     // The connection pool will maintain this for the duration of the request
-    await sql`SET app.current_user_id = ${user.id}`;
+    await sql`SET app.current_user_id = ${userId}`;
+
+    // Get user from database (now allowed by RLS because context is set)
+    const user = await getCurrentUserFromToken(userId);
+    c.set('user', user);
 
     await next();
   } catch (error) {
@@ -74,5 +74,13 @@ export async function authMiddleware(c: Context<AuthContext>, next: Next) {
       throw error;
     }
     throw new HTTPException(401, { message: 'Authentication failed' });
+  } finally {
+    // Clear the user context after the request
+    // This prevents the connection from being reused with the wrong user context
+    try {
+      await sql`RESET app.current_user_id`;
+    } catch {
+      // Ignore errors when resetting
+    }
   }
 }
