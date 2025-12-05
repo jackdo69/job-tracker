@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Job Tracker - Full Stack Application",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "prepare": "husky install"
   },
