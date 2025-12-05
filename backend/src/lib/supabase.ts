@@ -11,4 +11,4 @@ if (!config.supabaseUrl || !config.supabaseAnonKey) {
 export const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
 
 // Storage bucket name
-export const STORAGE_BUCKET = 'company-logos';
+export const STORAGE_BUCKET = 'job-tracer';

@@ -32,7 +32,7 @@ export async function processCompanyLogo(
       .toBuffer();
 
     // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET)
       .upload(filename, processedBuffer, {
         contentType: 'image/jpeg',
@@ -40,8 +40,16 @@ export async function processCompanyLogo(
       });
 
     if (uploadError) {
-      throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message}`);
+      console.error('Supabase upload error details:', {
+        message: uploadError.message,
+        name: uploadError.name,
+        cause: uploadError.cause,
+        fullError: uploadError
+      });
+      throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message || JSON.stringify(uploadError)}`);
     }
+
+    console.log('Upload successful:', uploadData);
 
     // Get public URL
     const { data } = supabase.storage
