@@ -38,7 +38,7 @@ export const config = {
 
   // Supabase Storage
   supabaseUrl: process.env.SUPABASE_URL || '',
-  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 
   // Server
   host: process.env.HOST || '0.0.0.0',
