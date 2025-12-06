@@ -1,5 +1,6 @@
 import sharp from 'sharp';
 import { supabase, STORAGE_BUCKET } from '../lib/supabase.js';
+import { logger } from '../lib/logger.js';
 
 const TARGET_SIZE = 200;
 const JPEG_QUALITY = 65;
@@ -19,6 +20,7 @@ export async function processCompanyLogo(
   buffer: Buffer,
   companyId: string
 ): Promise<string> {
+  logger.info({}, "Process Company logo")
   try {
     const filename = `${companyId}.jpg`;
 
@@ -30,15 +32,7 @@ export async function processCompanyLogo(
       })
       .jpeg({ quality: JPEG_QUALITY })
       .toBuffer();
-
-    console.log('📸 Uploading to Supabase Storage:', {
-      bucket: STORAGE_BUCKET,
-      filename,
-      originalBufferSize: buffer.length,
-      processedBufferSize: processedBuffer.length,
-      contentType: 'image/jpeg',
-      upsert: true
-    });
+        logger.info({}, "Sharp completed")
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -49,40 +43,21 @@ export async function processCompanyLogo(
       });
 
     if (uploadError) {
-      console.error('❌ Supabase upload failed with detailed error:');
-      console.error('Error object:', JSON.stringify(uploadError, null, 2));
-      console.error('Error keys:', Object.keys(uploadError));
-      console.error('Error name:', uploadError.name);
-      console.error('Error message:', uploadError.message);
-      console.error('Error cause:', uploadError.cause);
-      console.error('Error stack:', uploadError.stack);
-
-      // Try to extract additional error details if they exist
-      const errorRecord = uploadError as unknown as Record<string, unknown>;
-      if ('statusCode' in errorRecord) {
-        console.error('Error statusCode:', errorRecord.statusCode);
-      }
-      if ('error' in errorRecord) {
-        console.error('Error error:', errorRecord.error);
-      }
-
-      console.error('Full error object stringified:', JSON.stringify(uploadError, Object.getOwnPropertyNames(uploadError), 2));
-
       throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message || JSON.stringify(uploadError)}`);
     }
 
-    console.log('✅ Upload successful:', uploadData);
+    logger.debug({uploadData},'✅ Upload successful:' );
 
     // Get public URL
     const { data } = supabase.storage
       .from(STORAGE_BUCKET)
       .getPublicUrl(filename);
 
-    console.log('📍 Public URL:', data.publicUrl);
+    logger.info({publicUrl: data.publicUrl},'📍 Public URL:' );
 
     return data.publicUrl;
   } catch (error) {
-    console.error('🔥 processCompanyLogo caught error:', error);
+    logger.error({error},'🔥 processCompanyLogo caught error:' );
     throw new Error(`Failed to process company logo: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

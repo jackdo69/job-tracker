@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import { companies, type Company, type NewCompany } from '../db/schema.js';
 import { processCompanyLogo, deleteCompanyLogo } from './imageProcessor.js';
+import { logger } from '../lib/logger.js';
 
 /**
  * Create a new company for a user
@@ -43,7 +44,7 @@ export async function createCompany(
       }
     } catch (error) {
       // If logo processing fails, still return company without logo
-      console.error('Logo processing failed:', error);
+      logger.error({error}, 'Logo processing failed:' )
       return company;
     }
   }
